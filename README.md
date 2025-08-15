@@ -64,7 +64,7 @@ Depending on what model type you use (regular/split) you have to apply the right
 Open BlockBench, open the "File" > "Plugins" menu and then click "Load plugin from url" and paste this link in:
 
 ```
-https://github.com/OpenVoxelStudios/player-animated-java/releases/latest/download/animated-java.js
+https://github.com/OpenVoxelStudios/player-animated-java/releases/latest/download/animated_java.js
 ```
 
 Make sure to have regular AJ uninstalled.
