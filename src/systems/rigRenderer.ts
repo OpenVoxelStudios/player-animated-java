@@ -276,7 +276,22 @@ function renderCube(cube: Cube, rig: IRenderedRig, model: IRenderedModel) {
 		element.faces[face] = renderedFace
 	}
 
-	if (Object.keys(element.faces).length === 0) return
+	// Check if this is a stable player display cube (allow cubes without textures)
+	function isPartOfStablePlayerDisplay(cube: Cube): boolean {
+		let current = cube.parent
+		while (current instanceof Group) {
+			if (
+				current.name === 'stable_player_display' ||
+				current.name === 'split_stable_player_display'
+			) {
+				return true
+			}
+			current = current.parent
+		}
+		return false
+	}
+
+	if (Object.keys(element.faces).length === 0 && !isPartOfStablePlayerDisplay(cube)) return
 	model.elements ??= []
 	model.elements.push(element)
 }

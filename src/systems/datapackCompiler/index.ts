@@ -9,6 +9,7 @@ import {
 } from 'deepslate/lib/nbt'
 import { MAX_PROGRESS, PROGRESS, PROGRESS_DESCRIPTION } from '../../interface/dialog/exportProgress'
 import { BoneConfig, TextDisplayConfig } from '../../nodeConfigs'
+import { SPD_isRegular, SPD_OFFSETS } from '../../outliner/stablePlayerDisplay'
 import { isFunctionTagPath } from '../../util/fileUtil'
 import {
 	getDataPackFormat,
@@ -781,6 +782,36 @@ async function generateRootEntityPassengers(
 
 				if (node.configs?.default) {
 					BoneConfig.fromJSON(node.configs.default).toNBT(passenger)
+				}
+
+				if (Object.keys(SPD_OFFSETS).includes(node.name)) {
+					passenger.set(
+						'transformation',
+						new NbtCompound()
+							.set(
+								'translation',
+								arrayToNbtFloatArray([
+									0,
+									SPD_OFFSETS[node.name as keyof typeof SPD_OFFSETS] +
+										(node.name == 'torso'
+											? SPD_isRegular(node, rig.nodes)
+												? 0.7
+												: 0.375
+											: 0),
+									0,
+								])
+							)
+							.set('left_rotation', arrayToNbtFloatArray([0, 0, 0, 1]))
+							.set('right_rotation', arrayToNbtFloatArray([0, 0, 0, 1]))
+							.set('scale', arrayToNbtFloatArray([1, 1, 1]))
+					)
+
+					passenger.set('item_display', new NbtString('thirdperson_righthand'))
+					passenger.set(
+						'item',
+						new NbtCompound().set('id', new NbtString('minecraft:air'))
+					)
+					// passenger.set('view_range', new NbtFloat(0.6))
 				}
 
 				passenger.set('height', new NbtFloat(aj.bounding_box[1]))

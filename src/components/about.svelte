@@ -14,6 +14,19 @@
 		</div>
 	</div>
 
+	<p
+		style="
+			color: var(--color-subtle_text);
+			text-align: center;
+		"
+	>
+		Hi! Kubik here. I'm not part of the AJ dev team, I just forked their project to implement Stable Player Display inside of it :)
+		<br /><br />
+		Support them, not me. I litteraly just added a few things together they should get all the credits.
+		<br /><br />
+		If you have issues: DO NOT REPORT THEM TO AJ / SPD! Report them to me instead, they might be linked to my implementation 🙃
+	</p>
+
 	<div class="socials">
 		<a href="https://animated-java.dev" class="open-in-browser">
 			<!-- svelte-ignore a11y-missing-attribute -->

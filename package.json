@@ -1,9 +1,9 @@
 {
 	"type": "module",
 	"name": "animated_java",
-	"title": "Animated Java",
+	"title": "Player Animated Java",
 	"icon": "icon.svg",
-	"description": "A Blockbench plugin that makes complex animation a breeze in Minecraft: Java Edition.",
+	"description": "[FORK] A Blockbench plugin that makes complex animation a breeze in Minecraft: Java Edition.",
 	"version": "1.7.2",
 	"min_blockbench_version": "4.12.0",
 	"variant": "desktop",
@@ -68,7 +68,7 @@
 	],
 	"repository": {
 		"type": "github",
-		"url": "https://github.com/Animated-Java/animated-java"
+		"url": "https://github.com/OpenVoxelStudios/player-animated-java/"
 	},
 	"main": "./dist/index.js",
 	"types": "./dist/src/index.d.ts",

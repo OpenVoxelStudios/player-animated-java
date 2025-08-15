@@ -7,6 +7,7 @@ import {
 	getKeyframeRepeatFrequency,
 	getKeyframeVariant,
 } from '../mods/customKeyframesMod'
+import { SPD_isRegular, SPD_OFFSETS } from '../outliner/stablePlayerDisplay'
 import { TextDisplay } from '../outliner/textDisplay'
 import { VanillaBlockDisplay } from '../outliner/vanillaBlockDisplay'
 import { VanillaItemDisplay } from '../outliner/vanillaItemDisplay'
@@ -198,6 +199,17 @@ export function getFrame(
 					console.warn('pre-post', matrix.equals(postMatrix), matrix, postMatrix)
 					matrix = postMatrix
 					updatePreview(animation, time)
+				}
+
+				if (Object.keys(SPD_OFFSETS).includes(node.name)) {
+					matrix.elements[13] += SPD_OFFSETS[node.name as keyof typeof SPD_OFFSETS]
+
+					if (node.name === 'torso') {
+						const spdInfo = SPD_isRegular(node, nodeMap)
+						const yOffset = spdInfo ? 0.75 : 0.375
+						const offsetMatrix = new THREE.Matrix4().makeTranslation(0, yOffset, 0)
+						matrix.multiply(offsetMatrix)
+					}
 				}
 
 				lastFrameCache.set(uuid, { matrix, keyframe })

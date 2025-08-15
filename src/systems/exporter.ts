@@ -91,9 +91,18 @@ async function actuallyExportProject(forceSave = true) {
 				translate('misc.failed_to_export.rig_has_textures_but_no_custom_models.message')
 			)
 		} else if (rig.includes_custom_models && Texture.all.length === 0) {
-			throw new IntentionalExportError(
-				translate('misc.failed_to_export.rig_has_custom_models_but_no_textures.message')
+			// Check if this is a stable player display (cubes without textures are allowed)
+			const hasStablePlayerDisplay = Group.all.some(
+				group =>
+					group.name === 'stable_player_display' ||
+					group.name === 'split_stable_player_display'
 			)
+
+			if (!hasStablePlayerDisplay) {
+				throw new IntentionalExportError(
+					translate('misc.failed_to_export.rig_has_custom_models_but_no_textures.message')
+				)
+			}
 		}
 
 		if (

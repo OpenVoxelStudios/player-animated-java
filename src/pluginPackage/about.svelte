@@ -14,6 +14,15 @@
 	<span>&nbsp;Animated Java is here to help! </span>
 </div>
 
+<h3 class="animated-java-plugin-page-h3">README: Side Note</h3>
+<p>
+	Hi! Kubik here. I'm not part of the AJ dev team, I just forked their project to implement Stable Player Display inside of it :)
+	<br /><br />
+	Support them, not me. I litteraly just added a few things together they should get all the credits.
+	<br /><br />
+	If you have issues: DO NOT REPORT THEM TO AJ / SPD! Report them to me instead, they might be linked to my implementation 🙃
+</p>
+
 <div
 	style="
 	display: flex;

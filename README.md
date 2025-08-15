@@ -1,6 +1,6 @@
 <div align=center>
 	<img src="https://raw.githubusercontent.com/Animated-Java/animated-java/main/src/assets/animated_java_icon.svg" width=128/>
-	<h1 >Animated Java
+	<h1 >Player Animated Java
 	</h1>
 </div>
 <div align="center">
@@ -12,6 +12,64 @@
 <h3 align="center">
 	A Blockbench plugin that makes complex animation a breeze in Minecraft: Java Edition.
 </h3>
+
+# README: Side Note!
+
+Hi! Kubik here. Before continuing I want to make some stuff clear :
+
+-   I do not participate in AJs or SPDs development
+-   I "merged" the projects together for a simpler and accessible use
+-   I kept every link towards Animated Java, including in this README. Show them support! (totally to avoid merge conflicts too lol)
+-   Changes are written down in the [CHANGES.md](./CHANGES.md) file
+
+So credits to the original Animated Java project: https://animated-java.dev
+As well as Stable Player Display (SPD): https://github.com/bradleyq/stable_player_display
+
+## So now that this is clear, why?
+
+This "Player Animated Java" allows you to easily animate custom players, while keeping the power of Animated Java. **This only works for 1.21.5+** (tested in 1.21.8).
+
+## How to use PlayerAJ?
+
+Create an AJ project like usual, and click on the new button:
+
+![](.github/assets/SPD_add_button.png)
+
+You'll be asked to choose between **regular** and **split**. Regular has 6 animatable cubes: head, torso, 2 arms and 2 legs. Split has **two parts** for the torso, arms and legs meaning that you'll have 11 animatable cubes.
+
+![](.github/assets/SPD_dialog.png)
+
+Now you can animate your player in the animate tab. **MAKE SURE YOU DO NOT APPLY ANY TEXTURES TO THE PLAYER!** You can then export like usual and summon the rig as usual.
+
+You won't see anything at first and that's normal! You have to apply the skin you want to show:
+
+```
+# Apply defined skin to the nearest rig
+/execute as @n[tag=aj.<namespace>.root] run function animated_java:<namespace>/set_skin {name:"<player name>"}
+
+# You can also apply a slim variant
+/execute as @n[tag=aj.<namespace>.root] run function animated_java:<namespace>/set_skin_slim {name:"<player name>"}
+
+# Apply skin of the current player (this has to be executed AT the rig not AS!)
+/execute at @e[tag=aj.<namespace>.root] run function animated_java:<namespace>/apply_skin
+
+# Or same with the slim variant
+/execute at @e[tag=aj.<namespace>.root] run function animated_java:<namespace>/apply_skin_slim
+```
+
+Depending on what model type you use (regular/split) you have to apply the right StablePlayerDisplay resource pack. You can find the `SPD.zip` and `SPD_split.zip` resource packs in the [Releases tab](https://github.com/OpenVoxelStudios/player-animated-java/releases/latest). Only apply one of them at a time, so I guess you can't really have two different types in the same world...
+
+# How to install Player Animated Java?
+
+Open BlockBench, open the "File" > "Plugins" menu and then click "Load plugin from url" and paste this link in:
+
+```
+https://github.com/OpenVoxelStudios/player-animated-java/releases/latest/download/animated-java.js
+```
+
+Make sure to have regular AJ uninstalled.
+
+**The following text comes from the original Animated Java README.**
 
 # What is Animated Java?
 
