@@ -947,4 +947,30 @@ dir <%export_namespace%> {
 			}
 		}
 	}
+
+	function set_skin {
+		#ARGS: {name: string}
+		REPEAT (["head", "left_arm", "left_forearm", "right_arm", "right_forearm", "torso", "waist", "left_leg", "lower_left_leg", "right_leg", "lower_right_leg"]) as part {
+			$execute on passengers run item replace entity @s[tag=aj.<%export_namespace%>.bone.<%part%>] container.0 with player_head[profile={name:$(name)},minecraft:item_model="animated_java:blueprint/player_display/<%part%>",custom_model_data={strings:["default"]}]
+		}
+	}
+
+	function set_skin_slim {
+		#ARGS: {name: string}
+		REPEAT (["head", "left_arm", "left_forearm", "right_arm", "right_forearm", "torso", "waist", "left_leg", "lower_left_leg", "right_leg", "lower_right_leg"]) as part {
+			$execute on passengers run item replace entity @s[tag=aj.<%export_namespace%>.bone.<%part%>] container.0 with player_head[profile={name:$(name)},minecraft:item_model="animated_java:blueprint/player_display/<%part%>",custom_model_data={strings:["slim"]}]
+		}
+	}
+
+	function apply_skin {
+		REPEAT (["head", "left_arm", "left_forearm", "right_arm", "right_forearm", "torso", "waist", "left_leg", "lower_left_leg", "right_leg", "lower_right_leg"]) as part {
+			loot replace entity @n[tag=aj.<%export_namespace%>.bone.<%part%>] hotbar.0 loot {"pools": [{"rolls": 1,"entries": [{"type": "minecraft:item","name": "minecraft:player_head","functions": [{"function": "minecraft:set_components","components": {"minecraft:item_model": "animated_java:blueprint/player_display/<%part%>","minecraft:custom_model_data": {"strings": ["default"]}}},{"function": "minecraft:fill_player_head","entity": "this"}]}]}]}
+		}
+	}
+
+	function apply_skin_slim {
+		REPEAT (["head", "left_arm", "left_forearm", "right_arm", "right_forearm", "torso", "waist", "left_leg", "lower_left_leg", "right_leg", "lower_right_leg"]) as part {
+			loot replace entity @n[tag=aj.<%export_namespace%>.bone.<%part%>] hotbar.0 loot {"pools": [{"rolls": 1,"entries": [{"type": "minecraft:item","name": "minecraft:player_head","functions": [{"function": "minecraft:set_components","components": {"minecraft:item_model": "animated_java:blueprint/player_display/<%part%>","minecraft:custom_model_data": {"strings": ["slim"]}}},{"function": "minecraft:fill_player_head","entity": "this"}]}]}]}
+		}
+	}
 }
