@@ -111,7 +111,7 @@ BBPlugin.register(PACKAGE.name, {
 	title: PACKAGE.title,
 	author: PACKAGE.author.name,
 	description: PACKAGE.description,
-	icon: 'icon.svg',
+	icon: 'https://github.com/OpenVoxelStudios/player-animated-java/blob/main/src/assets/animated_java_icon.svg',
 	variant: 'desktop',
 	version: PACKAGE.version,
 	min_version: PACKAGE.min_blockbench_version,
