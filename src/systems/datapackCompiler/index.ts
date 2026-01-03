@@ -784,7 +784,24 @@ async function generateRootEntityPassengers(
 					BoneConfig.fromJSON(node.configs.default).toNBT(passenger)
 				}
 
-				if (Object.keys(SPD_OFFSETS).includes(node.name)) {
+				function hasStablePlayerDisplayParent(currentNode: AnyRenderedNode): boolean {
+					if (currentNode.parent === 'root' || !currentNode.parent) return false
+
+					const parentNode = rig.nodes[currentNode.parent]
+					if (!parentNode) return false
+
+					if (
+						parentNode.name === 'stable_player_display' ||
+						parentNode.name === 'split_stable_player_display'
+					)
+						return true
+					return hasStablePlayerDisplayParent(parentNode)
+				}
+
+				if (
+					Object.keys(SPD_OFFSETS).includes(node.name) &&
+					hasStablePlayerDisplayParent(node)
+				) {
 					passenger.set(
 						'transformation',
 						new NbtCompound()
