@@ -1,179 +1,228 @@
-<script lang="ts">
+<script lang="ts" context="module">
 	import { CodeJar } from '@novacbn/svelte-codejar'
-	import { onDestroy } from 'svelte'
-	import { type Unsubscriber } from 'svelte/store'
+	import { Stopwatch } from 'src/util/stopwatch'
 	import {
 		TEXT_DISPLAY_ALIGNMENT_SELECT,
 		TEXT_DISPLAY_BACKGROUND_COLOR_PICKER,
+		TEXT_DISPLAY_COPY_TEXT_ACTION,
 		TEXT_DISPLAY_SEE_THROUGH_TOGGLE,
 		TEXT_DISPLAY_SHADOW_TOGGLE,
 		TEXT_DISPLAY_WIDTH_SLIDER,
 	} from '../interface/panel/textDisplayElement'
 	import { TextDisplay } from '../outliner/textDisplay'
-	import { events } from '../util/events'
-	import { floatToHex } from '../util/misc'
-	import { Valuable } from '../util/stores'
 	import { translate } from '../util/translation'
+
+	const HIGHLIGHT_CACHE = new Map<string, string>()
 
 	function highlight(code: string, syntax?: string) {
 		if (!syntax) return code
-		return Prism.highlight(code, Prism.languages[syntax], syntax)
+		const cached = HIGHLIGHT_CACHE.get(code)
+		if (cached) return cached
+		if (code.length > 10000) {
+			console.warn('Skipping syntax highlighting due to large text size')
+			return code
+		}
+		const stopwatch = new Stopwatch('Highlighting').start()
+		const result = Prism.highlight(code, Prism.languages[syntax], syntax)
+		stopwatch.debug({ code, result })
+		HIGHLIGHT_CACHE.set(code, result)
+		return result
+	}
+</script>
+
+<script lang="ts">
+	export let selected: TextDisplay
+
+	let text = selected.text
+	let error = selected.textError
+
+	let codeJarElement: HTMLPreElement | undefined
+
+	// Force the inputs to update
+	TEXT_DISPLAY_WIDTH_SLIDER.setValue(selected.lineWidth)
+	TEXT_DISPLAY_BACKGROUND_COLOR_PICKER.set(tinycolor(selected.backgroundColor))
+	TEXT_DISPLAY_SHADOW_TOGGLE.set(selected.shadow)
+	TEXT_DISPLAY_ALIGNMENT_SELECT.set(selected.align)
+	TEXT_DISPLAY_SEE_THROUGH_TOGGLE.set(selected.seeThrough)
+
+	$: {
+		if (selected.text !== text) {
+			Undo.initEdit({ elements: [selected] })
+			selected.text = text
+			selected.updateTextMesh()
+			Project!.saved = false
+			Undo.finishEdit(`Change Text Display Text`, { elements: [selected] })
+		}
 	}
 
-	let lastSelected: TextDisplay | undefined
-	let selected = TextDisplay.selected.at(0)
-
-	// @ts-expect-error
-	let text = selected?._text ?? new Valuable('')
-	let lastText: string | undefined = selected?.text
-	// @ts-expect-error
-	let error = selected?._textError ?? new Valuable('')
-
-	let lineWidthSlot: HTMLDivElement
-	let backgroundColorSlot: HTMLDivElement
-	let shadowSlot: HTMLDivElement
-	let alignmentSlot: HTMLDivElement
-	let seeThroughSlot: HTMLDivElement
-	let codeJar: CodeJar
-
-	let unsubFromText: Unsubscriber | undefined
-
-	const unsubFromEvent = events.UPDATE_SELECTION.subscribe(() => {
-		unsubFromText?.()
-
-		lastSelected = selected
-		selected = TextDisplay.selected.at(0)
-		if (!selected) return
-		// This might be a bit hacky, but svelte seems to handle it fine.
-		// @ts-ignore
-		text = selected._text
-		lastText = selected.text
-		error = selected.textError
-
-		// Force the inputs to update
-		TEXT_DISPLAY_WIDTH_SLIDER.setValue(selected.lineWidth)
-		const color = selected.backgroundColor + floatToHex(selected.backgroundAlpha)
-		TEXT_DISPLAY_BACKGROUND_COLOR_PICKER.set(color)
-		TEXT_DISPLAY_SHADOW_TOGGLE.set(selected.shadow)
-		TEXT_DISPLAY_ALIGNMENT_SELECT.set(selected.align)
-		TEXT_DISPLAY_SEE_THROUGH_TOGGLE.set(selected.seeThrough)
-
-		unsubFromText = text.subscribe(value => {
-			if (!Project) return
-			if (lastSelected !== selected || lastSelected === undefined) {
-				lastSelected = selected
-				return
-			}
-			if (lastText === value) return
-			console.log('Text changed')
-			lastText = value
-			Project.saved = false
-		})
-	})
+	const mountLineWidth = (node: HTMLDivElement) => {
+		node.appendChild(TEXT_DISPLAY_WIDTH_SLIDER.node)
+	}
+	const mountShadow = (node: HTMLDivElement) => {
+		node.appendChild(TEXT_DISPLAY_SHADOW_TOGGLE.node)
+	}
+	const mountAlignment = (node: HTMLDivElement) => {
+		node.appendChild(TEXT_DISPLAY_ALIGNMENT_SELECT.node)
+	}
+	const mountSeeThrough = (node: HTMLDivElement) => {
+		node.appendChild(TEXT_DISPLAY_SEE_THROUGH_TOGGLE.node)
+	}
+	const mountBackgroundColor = (node: HTMLDivElement) => {
+		node.appendChild(TEXT_DISPLAY_BACKGROUND_COLOR_PICKER.node)
+	}
+	const mountCopyText = (node: HTMLDivElement) => {
+		node.appendChild(TEXT_DISPLAY_COPY_TEXT_ACTION.node)
+	}
 
 	requestAnimationFrame(() => {
-		lineWidthSlot.appendChild(TEXT_DISPLAY_WIDTH_SLIDER.node)
-		backgroundColorSlot.appendChild(TEXT_DISPLAY_BACKGROUND_COLOR_PICKER.node)
-		shadowSlot.appendChild(TEXT_DISPLAY_SHADOW_TOGGLE.node)
-		alignmentSlot.appendChild(TEXT_DISPLAY_ALIGNMENT_SELECT.node)
-		seeThroughSlot.appendChild(TEXT_DISPLAY_SEE_THROUGH_TOGGLE.node)
 		forceNoWrap()
 	})
 
 	function forceNoWrap() {
-		if (!codeJar) return
-		codeJar.$$.ctx[0].style.overflowWrap = 'unset'
-		codeJar.$$.ctx[0].style.whiteSpace = 'nowrap'
+		if (!codeJarElement) return
+		codeJarElement.style.overflowWrap = 'unset'
+		codeJarElement.style.whiteSpace = 'pre'
 	}
 
-	onDestroy(() => {
-		unsubFromEvent()
-		unsubFromText?.()
-	})
+	const onKeydown = (e: Event) => {
+		if (!(e instanceof KeyboardEvent)) return
+		if (e.key === 'Tab') {
+			e.stopPropagation()
+		} else if (e.code === 'KeyZ' && e.ctrlKey) {
+			// CodeJar doesn't capture undo correctly. So we have to fudge it a little.
+			requestAnimationFrame(() => {
+				if (selected && codeJarElement?.textContent != undefined) {
+					text = codeJarElement.textContent
+				}
+			})
+		}
+	}
 </script>
 
-<p class="panel_toolbar_label label" style={!!selected ? '' : 'visibility:hidden; height: 0px;'}>
+<p class="panel_toolbar_label label">
 	{translate('panel.text_display.title')}
 </p>
 
-<div class="toolbar custom-toolbar" style={!!selected ? '' : 'visibility:hidden; height: 0px;'}>
-	<div class="content" bind:this={lineWidthSlot}></div>
-	<div class="content" bind:this={backgroundColorSlot}></div>
-	<div class="content" bind:this={shadowSlot}></div>
-	<div class="content" bind:this={alignmentSlot}></div>
-	<div class="content" bind:this={seeThroughSlot}></div>
+<div class="toolbar text-display-toolbar">
+	<div class="content" use:mountLineWidth />
+	<div class="content" use:mountShadow />
+	<div class="content" use:mountAlignment />
+	<div class="content" use:mountSeeThrough />
+	<div class="content" use:mountBackgroundColor />
+	<div class="content" use:mountCopyText />
 </div>
 
 <div
-	class="toolbar"
+	class="toolbar text-display-text-toolbar"
 	style={!!selected ? 'margin-bottom: 16px;' : 'visibility:hidden; height: 0px;'}
 >
-	<div class="content">
+	<div class="content codejar-container" on:keydown={onKeydown}>
 		<CodeJar
-			on:change={() => forceNoWrap()}
-			syntax="json"
+			bind:element={codeJarElement}
+			syntax="snbtTextComponent"
 			{highlight}
-			bind:this={codeJar}
-			bind:value={$text}
+			bind:value={text}
+			on:change={() => forceNoWrap()}
+			preserveIdent
+			history
 			style="
-				background-color: var(--color-button);
+				background-color: var(--color-back);
 				font-family: var(--font-code);
 				font-size: 14px;
-				text-align: left;
-				padding: 4px 8px;
-				height: 10rem;
-				resize: vertical;
-				border: none;
-				width: 95%;
-				margin-bottom: 0px;
+				padding: 3px 6px;
+				max-height: 20em;
+				height: fit-content;
+				min-height: 5rem;
+				width: 100%;
 				outline: none;
 				overflow-wrap: unset;
-				overflow-y: auto;
-				white-space: nowrap;
-				margin-top: 0px;
-				margin-left: 2px;
+				overflow-y: scroll;
+				white-space: pre;
+				margin: 8px;
+				margin-bottom: 0px;
+				{$error
+				? 'border: 1px solid var(--color-error); border-bottom: none; border-radius: 0.3em 0.3em 0 0;'
+				: 'border: 1px solid var(--color-border);'}
+				text-shadow: 0px 1px rgba(0, 0, 0, 0.3);
 			"
 		/>
+		{#if $error}
+			<textarea readonly rows={$error.split('\n').length + 1}>{$error}</textarea>
+		{/if}
 	</div>
-	{#if $error}
-		<textarea readonly>{$error}</textarea>
-	{/if}
 </div>
 
 <style>
 	.label {
 		margin-bottom: -3px !important;
 	}
+	.text-display-text-toolbar {
+		display: flex;
+	}
 	textarea {
-		margin-right: 20px;
-		margin-left: 2px;
 		color: var(--color-error);
 		background-color: var(--color-back);
-		padding: 4px 8px;
-		text-wrap: pretty;
-		overflow: scroll;
-		height: 10rem;
-		font-size: small;
+		padding: 3px 6px;
+		overflow: auto;
+		height: min-content;
+		font-size: 14px;
 		font-family: var(--font-code);
+		width: -webkit-fill-available;
+		margin: 8px;
+		margin-top: 0px;
+		border-radius: 0 0 0.3em 0.3em;
+		border: 1px solid var(--color-error);
+		white-space: pre;
+		tab-size: 4;
 	}
-	.custom-toolbar {
+	.codejar-container {
+		width: 100%;
+	}
+	.codejar-container :global(.language-snbtTextComponent) {
+		& .brackets {
+			color: #5ba8c5;
+		}
+		& .token.punctuation {
+			color: #89ddff;
+		}
+		& .token.property {
+			color: #eeffff;
+		}
+		& .token.escape-sequence {
+			color: #89ddff;
+		}
+		& .token.constant {
+			color: #c767d7;
+			border-bottom: 1px solid;
+		}
+		& .token.number {
+			color: #f92672;
+		}
+		& .token.boolean {
+			color: #f78c6c;
+		}
+		& .token.string {
+			color: #aef941;
+		}
+	}
+	.text-display-toolbar {
 		display: flex;
 		flex-direction: row;
 		margin-bottom: 1px;
 	}
-	.custom-toolbar :global(.sp-replacer) {
+	.text-display-toolbar :global(.sp-replacer) {
 		padding: 4px 18px !important;
 		height: 28px !important;
 		margin: 2px 0px !important;
 	}
-	.custom-toolbar :global([toolbar_item='animated_java:textDisplayShadowToggle']) {
+	.text-display-toolbar :global([toolbar_item='animated_java:textDisplayShadowToggle']) {
 		margin-right: 2px !important;
 	}
-	.custom-toolbar :global(.bar_select) {
+	.text-display-toolbar :global(.bar_select) {
 		height: 28px !important;
 		margin: 2px 0px !important;
 	}
-	.custom-toolbar :global(bb-select) {
+	.text-display-toolbar :global(bb-select) {
 		height: 28px !important;
 		display: flex;
 		align-items: center;

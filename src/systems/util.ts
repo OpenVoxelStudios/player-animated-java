@@ -1,14 +1,15 @@
 import { NbtCompound, NbtFloat, NbtList } from 'deepslate/lib/nbt'
 import {
-	AsyncZipOptions,
-	AsyncZippable,
 	unzip as cbUnzip,
 	zip as cbZip,
 	type AsyncUnzipOptions,
+	type AsyncZipOptions,
+	type AsyncZippable,
 	type Unzipped,
 } from 'fflate/browser'
+import { projectTargetVersionIsAtLeast } from 'src/formats/blueprint'
 import { roundTo } from '../util/misc'
-import { INodeTransform } from './animationRenderer'
+import type { INodeTransform } from './animationRenderer'
 
 export interface ExportedFile {
 	content: string | Buffer
@@ -91,38 +92,32 @@ export const unzip = (data: Uint8Array, options: AsyncUnzipOptions) => {
 	})
 }
 
-export function isCubeValid(cube: Cube) {
-	// Cube is automatically valid if it has no rotation
-	if (cube.rotation[0] === 0 && cube.rotation[1] === 0 && cube.rotation[2] === 0) {
-		return true
-	}
-	const rotation = cube.rotation[0] + cube.rotation[1] + cube.rotation[2]
-	// prettier-ignore
-	if (
-		// Make sure the cube is rotated in only one axis by adding all the rotations together, and checking if the sum is equal to one of the rotations.
-		(
-			rotation === cube.rotation[0] ||
-			rotation === cube.rotation[1] ||
-			rotation === cube.rotation[2]
-		)
-		&&
-		// Make sure the cube is rotated in one of the allowed 22.5 degree increments
-		(
-			rotation === -45   ||
-			rotation === -22.5 ||
-			rotation === 0     ||
-			rotation === 22.5  ||
-			rotation === 45
-		)
-	) {
-		return true
-	}
-	return false
-}
+export function isCubeValid(cube: Cube): '1.21.6+' | 'valid' | 'invalid' {
+	const totalRotation = cube.rotation[0] + cube.rotation[1] + cube.rotation[2]
 
-export function getFunctionNamespace(version: string): 'function' | 'functions' {
-	// If the target version is 1.21.0 or higher, use the 'function' namespace instead of 'functions'
-	return compareVersions(version, '1.20.10000') ? 'function' : 'functions'
+	if (totalRotation === 0) return 'valid'
+
+	const isSingleAxisRotation =
+		totalRotation === cube.rotation[0] ||
+		totalRotation === cube.rotation[1] ||
+		totalRotation === cube.rotation[2]
+
+	if (isSingleAxisRotation && projectTargetVersionIsAtLeast('1.21.6')) {
+		// Rotation values still need to be within -45 and 45 degrees
+		if (totalRotation <= 45 && totalRotation >= -45) return '1.21.6+'
+		else return 'invalid'
+	}
+
+	const isRotationInAllowedSteps =
+		totalRotation === -45 ||
+		totalRotation === -22.5 ||
+		totalRotation === 0 ||
+		totalRotation === 22.5 ||
+		totalRotation === 45
+
+	if (isSingleAxisRotation && isRotationInAllowedSteps) return 'valid'
+
+	return 'invalid'
 }
 
 export async function sleepForAnimationFrame() {

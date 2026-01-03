@@ -1,11 +1,12 @@
+import { ItemDisplayMode } from 'src/outliner/vanillaItemDisplay'
 import { mergeGeometries } from '../../util/bufferGeometryUtils'
 import { getPathFromResourceLocation, parseResourceLocation } from '../../util/minecraftUtil'
 import { assetsLoaded, getJSONAsset, getPngAssetAsDataUrl } from './assetManager'
 import { parseBlockModel } from './blockModelManager'
-import { IItemModel } from './model'
+import type { IItemModel } from './model'
 import { TEXTURE_FRAG_SHADER, TEXTURE_VERT_SHADER } from './textureShaders'
 
-type ItemModelMesh = {
+interface ItemMesh {
 	mesh: THREE.Mesh
 	outline: THREE.LineSegments
 	boundingBox: THREE.BufferGeometry
@@ -13,15 +14,18 @@ type ItemModelMesh = {
 }
 
 const LOADER = new THREE.TextureLoader()
-const ITEM_MODEL_CACHE = new Map<string, ItemModelMesh>()
+const ITEM_MODEL_CACHE = new Map<string, ItemMesh>()
 
-export async function getItemModel(item: string): Promise<ItemModelMesh | undefined> {
+export async function getItemModel(
+	item: string,
+	itemDisplay: ItemDisplayMode
+): Promise<ItemMesh | undefined> {
 	await assetsLoaded()
-	let result = ITEM_MODEL_CACHE.get(item)
+	const cacheKey = item + '|' + itemDisplay
+	let result = ITEM_MODEL_CACHE.get(cacheKey)
 	if (!result) {
-		// console.warn(`Found no cached item model mesh for '${item}'`)
-		result = await parseItemModel(getItemResourceLocation(item))
-		ITEM_MODEL_CACHE.set(item, result)
+		result = await parseItemModel(getItemResourceLocation(item), itemDisplay)
+		ITEM_MODEL_CACHE.set(cacheKey, result)
 	}
 	if (!result) return undefined
 	result = {
@@ -48,9 +52,78 @@ function getItemResourceLocation(item: string) {
 	return resource.namespace + ':' + 'item/' + resource.path
 }
 
-async function parseItemModel(location: string, childModel?: IItemModel): Promise<ItemModelMesh> {
+const GENERATED_ITEM_DISPLAY_SETTINGS: NonNullable<IItemModel['display']> = {
+	thirdperson_righthand: { translation: [0, 3, 1], scale: [0.55, 0.55, 0.55] },
+	thirdperson_lefthand: { translation: [0, 3, 1], scale: [0.55, 0.55, 0.55] },
+	firstperson_righthand: {
+		rotation: [0, -90, 25],
+		translation: [1.13, 3.2, 1.13],
+		scale: [0.68, 0.68, 0.68],
+	},
+	firstperson_lefthand: {
+		rotation: [0, -90, 25],
+		translation: [1.13, 3.2, 1.13],
+		scale: [0.68, 0.68, 0.68],
+	},
+	ground: { translation: [0, 2, 0], scale: [0.5, 0.5, 0.5] },
+	head: { rotation: [0, -180, 0], translation: [0, 13, 7] },
+	fixed: { rotation: [0, -180, 0] },
+}
+
+export function applyModelDisplayTransform(
+	itemModel: ItemMesh,
+	model: IItemModel,
+	itemDisplay: ItemDisplayMode
+) {
+	if (itemDisplay === 'none' || !model.display) return
+
+	// default to right hand if left hand display is not defined
+	if (!model.display.thirdperson_lefthand && model.display.thirdperson_righthand) {
+		model.display.thirdperson_lefthand = structuredClone(model.display.thirdperson_righthand)
+	}
+	if (!model.display.firstperson_lefthand && model.display.firstperson_righthand) {
+		model.display.firstperson_lefthand = structuredClone(model.display.thirdperson_righthand)
+	}
+
+	const display = model.display[itemDisplay]
+	if (!display) return
+
+	const matrix = new THREE.Matrix4()
+	if (display.rotation) {
+		const rot = display.rotation.map((n: number) => (n * Math.PI) / 180)
+		matrix.makeRotationFromEuler(Reusable.euler1.set(-rot[0], -rot[1], rot[2]))
+	}
+	if (display.translation) {
+		matrix.setPosition(
+			Reusable.vec1.set(
+				display.translation[0],
+				display.translation[1],
+				display.translation[2]
+			)
+		)
+	}
+	if (display.scale) {
+		matrix.scale(Reusable.vec2.set(...display.scale))
+	}
+
+	itemModel.boundingBox.applyMatrix4(matrix)
+	itemModel.outline.geometry.applyMatrix4(matrix)
+	itemModel.mesh.applyMatrix4(matrix)
+}
+
+async function parseItemModel(
+	location: string,
+	itemDisplay: ItemDisplayMode,
+	childModel?: IItemModel
+): Promise<ItemMesh> {
 	const modelPath = getPathFromResourceLocation(location, 'models')
-	const model = getJSONAsset(modelPath + '.json') as IItemModel
+	let model: IItemModel
+	try {
+		model = getJSONAsset(modelPath + '.json')
+	} catch {
+		// Fallback to block model if item model doesn't exist
+		model = getJSONAsset(modelPath.replace('item/', 'block/') + '.json')
+	}
 
 	if (childModel) {
 		// if (childModel.ambientocclusion !== undefined)
@@ -70,22 +143,26 @@ async function parseItemModel(location: string, childModel?: IItemModel): Promis
 	if (model.parent) {
 		const resource = parseResourceLocation(model.parent)
 		if (resource.type === 'block') {
-			return await parseBlockModel({ model: model.parent, isItemModel: true }, model)
-		}
-		if (resource.path === 'item/generated') {
-			return await generateItemMesh(location, model)
+			return await parseBlockModel(
+				{ model: model.parent, isItemModel: true },
+				model,
+				itemDisplay
+			)
+		} else if (resource.path === 'item/generated') {
+			const itemMesh = await generateItemMesh(location, model)
+			model.display ??= GENERATED_ITEM_DISPLAY_SETTINGS
+			applyModelDisplayTransform(itemMesh, model, itemDisplay)
+			return itemMesh
 		} else {
-			return await parseItemModel(model.parent, model)
+			return await parseItemModel(model.parent, itemDisplay, model)
 		}
 	} else {
 		// The block model parser handles custom item models made from elements just fine, so we can use it here
-		return await parseBlockModel({ model: location, isItemModel: true }, model)
+		return await parseBlockModel({ model: location, isItemModel: true }, model, itemDisplay)
 	}
-
-	throw new Error(`Unsupported item model '${location}'`)
 }
 
-async function generateItemMesh(location: string, model: IItemModel): Promise<ItemModelMesh> {
+async function generateItemMesh(location: string, model: IItemModel): Promise<ItemMesh> {
 	const masterMesh = new THREE.Mesh()
 	const boundingBoxes: THREE.BufferGeometry[] = []
 	const outlineGeos: THREE.BufferGeometry[] = []
@@ -99,20 +176,20 @@ async function generateItemMesh(location: string, model: IItemModel): Promise<It
 
 		const mat = new THREE.ShaderMaterial({
 			uniforms: {
-				// @ts-ignore
+				// @ts-expect-error Uniforms types are wrong
 				map: { type: 't', value: texture },
-				// @ts-ignore
+				// @ts-expect-error Uniforms types are wrong
 				SHADE: { type: 'bool', value: settings.shading.value },
 				LIGHTCOLOR: {
-					// @ts-ignore
+					// @ts-expect-error Uniforms types are wrong
 					type: 'vec3',
 					value: new THREE.Color()
 						.copy(Canvas.global_light_color)
 						.multiplyScalar(settings.brightness.value / 50),
 				},
-				// @ts-ignore
+				// @ts-expect-error Uniforms types are wrong
 				LIGHTSIDE: { type: 'int', value: Canvas.global_light_side },
-				// @ts-ignore
+				// @ts-expect-error Uniforms types are wrong
 				EMISSIVE: { type: 'bool', value: false },
 			},
 			vertexShader: TEXTURE_VERT_SHADER,
@@ -121,7 +198,7 @@ async function generateItemMesh(location: string, model: IItemModel): Promise<It
 			side: Canvas.getRenderSide(),
 			transparent: true,
 		})
-		// @ts-ignore
+		// @ts-expect-error Uniforms types are wrong
 		mat.map = texture
 		mat.name = location
 
@@ -136,7 +213,7 @@ async function generateItemMesh(location: string, model: IItemModel): Promise<It
 			normals.push(x, y, z, x, y, z, x, y, z, x, y, z)
 		}
 
-		if (texture && texture.image.width) {
+		if (texture?.image.width) {
 			const canvas = document.createElement('canvas')
 			const ctx = canvas.getContext('2d')!
 			canvas.width = texture.image.width
@@ -148,8 +225,8 @@ async function generateItemMesh(location: string, model: IItemModel): Promise<It
 				const y = dir === 1 ? -1 : 0
 				// prettier-ignore
 				positionArray.push(
-					-x, y, z,
-					-x, y, z + 1,
+					-x,     y, z,
+					-x,     y, z + 1,
 					-x - w, y, z + h,
 					-x - w, y, z + h - 1
 				)
@@ -184,11 +261,11 @@ async function generateItemMesh(location: string, model: IItemModel): Promise<It
 				const s = positionArray.length / 3
 				// prettier-ignore
 				positionArray.push(
-						-startX, 0, startY,
-						-startX, -1, startY,
-						-endX, -1, endY,
-						-endX, 0, endY
-					)
+					-startX,  0, startY,
+					-startX, -1, startY,
+					-endX  , -1, endY,
+					-endX  ,  0, endY
+				)
 
 				if (dir === 1) {
 					indices.push(s + 0, s + 1, s + 2, s + 0, s + 2, s + 3)
@@ -210,15 +287,12 @@ async function generateItemMesh(location: string, model: IItemModel): Promise<It
 					endX -= 0.1
 					addNormal(0, 0, -dir)
 				}
+				// prettier-ignore
 				uvs.push(
-					endX / canvas.width,
-					1 - startY / canvas.height,
-					endX / canvas.width,
-					1 - endY / canvas.height,
-					startX / canvas.width,
-					1 - endY / canvas.height,
-					startX / canvas.width,
-					1 - startY / canvas.height
+					endX   / canvas.width, 1 - startY   / canvas.height,
+					endX   / canvas.width, 1 - endY     / canvas.height,
+					startX / canvas.width, 1 - endY     / canvas.height,
+					startX / canvas.width, 1 - startY   / canvas.height
 				)
 				colors.push(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
 			}
@@ -303,7 +377,7 @@ async function generateItemMesh(location: string, model: IItemModel): Promise<It
 	const outlineGeo = mergeGeometries(outlineGeos)
 	const boundingBox = mergeGeometries(boundingBoxes)!
 	const outline = new THREE.LineSegments(
-		new THREE.EdgesGeometry(outlineGeo as THREE.BufferGeometry),
+		new THREE.EdgesGeometry(outlineGeo!),
 		Canvas.outlineMaterial
 	)
 

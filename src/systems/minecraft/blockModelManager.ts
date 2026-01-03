@@ -1,14 +1,16 @@
+import { ItemDisplayMode } from 'src/outliner/vanillaItemDisplay'
 import { mergeGeometries } from '../../util/bufferGeometryUtils'
 import {
-	IParsedBlock,
+	type IParsedBlock,
 	getPathFromResourceLocation,
 	parseBlock,
 	resolveBlockstateValueType,
 } from '../../util/minecraftUtil'
 import { translate } from '../../util/translation'
 import { assetsLoaded, getJSONAsset, getPngAssetAsDataUrl, hasAsset } from './assetManager'
-import { BlockStateValue } from './blockstateManager'
-import {
+import type { BlockStateValue } from './blockstateManager'
+import { applyModelDisplayTransform } from './itemModelManager'
+import type {
 	IBlockModel,
 	IBlockState,
 	IBlockStateMultipartCase,
@@ -17,7 +19,7 @@ import {
 } from './model'
 import { TEXTURE_FRAG_SHADER, TEXTURE_VERT_SHADER } from './textureShaders'
 
-type BlockModelMesh = {
+export interface BlockModelMesh {
 	mesh: THREE.Mesh
 	outline: THREE.LineSegments
 	boundingBox: THREE.BufferGeometry
@@ -51,7 +53,6 @@ export async function getBlockModel(block: string): Promise<BlockModelMesh | und
 	await assetsLoaded()
 	let result = BLOCK_MODEL_CACHE.get(block)
 	if (!result) {
-		// console.warn(`Found no cached item model mesh for '${block}'`)
 		const parsed = await parseBlock(block)
 		if (!parsed) return undefined
 		if (BLACKLISTED_BLOCKS.has(block)) {
@@ -78,7 +79,8 @@ export async function getBlockModel(block: string): Promise<BlockModelMesh | und
 
 export async function parseBlockModel(
 	variant: IBlockStateVariant,
-	childModel?: IBlockModel
+	childModel?: IBlockModel,
+	itemDisplay: ItemDisplayMode = 'none'
 ): Promise<BlockModelMesh> {
 	const modelPath = getPathFromResourceLocation(variant.model, 'models')
 	const model = getJSONAsset(modelPath + '.json') as IBlockModel
@@ -91,24 +93,32 @@ export async function parseBlockModel(
 		// Interesting that elements aren't merged in vanilla...
 		if (childModel.elements !== undefined) model.elements = childModel.elements
 		if (childModel.display !== undefined)
-			model.display = Object.assign(model.display || {}, childModel.display)
+			model.display = Object.assign(model.display ?? {}, childModel.display)
 		if (childModel.ambientocclusion !== undefined)
 			model.ambientocclusion = childModel.ambientocclusion
 	}
 
 	if (model.parent) {
 		const parentVariant = { ...variant, model: model.parent }
-		return await parseBlockModel(parentVariant, model)
+		return await parseBlockModel(parentVariant, model, itemDisplay)
 	}
 
-	return await generateModelMesh(variant, model)
+	const mesh = await generateModelMesh(variant, model)
+	applyModelDisplayTransform(mesh, model, itemDisplay)
+	return mesh
 }
 
 async function generateModelMesh(
 	variant: IBlockStateVariant,
 	model: IBlockModel
 ): Promise<BlockModelMesh> {
-	console.log(`Generating block mesh for '${variant.model}' from `, variant, model)
+	console.log(
+		`Generating block mesh for '${variant.model}':`,
+		'\n - Variant',
+		variant,
+		'\n - Model',
+		model
+	)
 
 	if (!model.elements) {
 		throw new Error(`No elements defined in block model '${variant.model}'`)
@@ -180,12 +190,11 @@ async function generateModelMesh(
 		}
 
 		geometry.translate(-8, -8, -8)
-		// geometry.rotateY(Math.degToRad(180))
+		geometry.rotateY(Math.degToRad(180)) // Blockbench's rotation is mirrored compared to MC
 		if (variant.x) geometry.rotateX(Math.degToRad(variant.x))
 		if (variant.y) geometry.rotateY(-Math.degToRad(variant.y))
-		if (variant.isItemModel) {
-			geometry.translate(0, 8, 0)
-		} else {
+		geometry.rotateY(Math.degToRad(-180)) // Rotate back after mirroring
+		if (!variant.isItemModel) {
 			geometry.translate(8, 8, 8)
 		}
 
@@ -217,18 +226,18 @@ async function generateModelMesh(
 			const material = new THREE.ShaderMaterial({
 				uniforms: {
 					map: new THREE.Uniform(texture),
-					// @ts-expect-error
+					// @ts-expect-error Uniforms types are wrong
 					SHADE: { type: 'bool', value: settings.shading.value },
 					LIGHTCOLOR: {
-						// @ts-expect-error
+						// @ts-expect-error Uniforms types are wrong
 						type: 'vec3',
 						value: new THREE.Color()
 							.copy(Canvas.global_light_color)
 							.multiplyScalar(settings.brightness.value / 50),
 					},
-					// @ts-expect-error
+					// @ts-expect-error Uniforms types are wrong
 					LIGHTSIDE: { type: 'int', value: Canvas.global_light_side },
-					// @ts-expect-error
+					// @ts-expect-error Uniforms types are wrong
 					EMISSIVE: { type: 'bool', value: false },
 				},
 				vertexShader: TEXTURE_VERT_SHADER,
@@ -237,7 +246,7 @@ async function generateModelMesh(
 				side: Canvas.getRenderSide(),
 				transparent: true,
 			})
-			// @ts-expect-error
+			// @ts-expect-error Uniforms types are wrong
 			material.map = texture
 			material.name = variant.model
 			materials.push(material)
@@ -372,8 +381,6 @@ async function loadTexture(textures: IBlockModel['textures'], key: string): Prom
 	}
 	let texture: THREE.Texture
 	if (hasAsset(texturePath + '.mcmeta')) {
-		console.log(`Found mcmeta for texture '${texturePath}'`)
-
 		const img = new Image()
 		img.src = getPngAssetAsDataUrl(texturePath)
 		const canvas = document.createElement('canvas')
@@ -399,6 +406,31 @@ async function loadTexture(textures: IBlockModel['textures'], key: string): Prom
 	return texture
 }
 
+export function validateBlockState(block: IParsedBlock) {
+	if (!block.blockStateRegistryEntry) {
+		if (Object.keys(block.states).length > 0) {
+			return `${block.resource.name} has no block states`
+		}
+	} else {
+		for (const [k, v] of Object.entries(block.states)) {
+			if (!block.blockStateRegistryEntry.stateValues[k]) {
+				return (
+					`Invalid block state '${k}' for '${block.resource.name}'` +
+					` Expected one of: ${Object.keys(
+						block.blockStateRegistryEntry.stateValues
+					).join(', ')}`
+				)
+			} else if (!block.blockStateRegistryEntry.stateValues[k].includes(v)) {
+				return (
+					`Invalid block state value '${v.toString()}' for '${k}'.` +
+					` Expected one of: ${block.blockStateRegistryEntry.stateValues[k].join(', ')}`
+				)
+			}
+		}
+	}
+	return ''
+}
+
 export async function parseBlockState(block: IParsedBlock): Promise<BlockModelMesh> {
 	const path = getPathFromResourceLocation(block.resourceLocation, 'blockstates')
 	const blockstate = (await getJSONAsset(path + '.json')) as IBlockState
@@ -407,6 +439,14 @@ export async function parseBlockState(block: IParsedBlock): Promise<BlockModelMe
 	}
 	// Make sure the block has all the default states
 	block.states = Object.assign({}, block.blockStateRegistryEntry.defaultStates, block.states)
+	console.log(
+		'Block states for',
+		block.resourceLocation,
+		'\n - States',
+		block.states,
+		'\n - Registry entry',
+		block.blockStateRegistryEntry
+	)
 
 	for (const [k, v] of Object.entries(block.states)) {
 		if (!block.blockStateRegistryEntry.stateValues[k]) {
@@ -428,6 +468,9 @@ export async function parseBlockState(block: IParsedBlock): Promise<BlockModelMe
 		const singleVariant = blockstate.variants['']
 		if (singleVariant) {
 			if (Array.isArray(singleVariant)) {
+				console.warn(
+					`Multiple weighted variants found for '${block.resourceLocation}' default variant. Using the first one.`
+				)
 				return await parseBlockModel(singleVariant[0])
 			} else {
 				return await parseBlockModel(singleVariant)
@@ -453,6 +496,9 @@ export async function parseBlockState(block: IParsedBlock): Promise<BlockModelMe
 
 			let model: BlockModelMesh
 			if (Array.isArray(variant)) {
+				console.warn(
+					`Multiple weighted variants found for '${block.resourceLocation}' variant '${name}'. Using the first one.`
+				)
 				model = await parseBlockModel(variant[0])
 			} else {
 				model = await parseBlockModel(variant)
@@ -549,7 +595,7 @@ function checkIfBlockStateMatches(
 	}
 
 	if (typeof value === 'boolean') {
-		return !!block.states[key] === value
+		return block.states[key] === value
 	} else if (typeof value === 'string') {
 		return block.states[key] === value
 	} else if (typeof value === 'number') {

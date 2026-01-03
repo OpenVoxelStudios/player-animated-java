@@ -11,15 +11,17 @@ import ImportGlobPlugin from 'esbuild-plugin-import-glob'
 import inlineImage from 'esbuild-plugin-inline-image'
 import * as fs from 'fs'
 import { load } from 'js-yaml'
+import vscodeProblemsPatch from 'node-modules-vscode-problems-patch'
 import * as path from 'path'
 import { isAbsolute, join } from 'path'
 import { TextDecoder } from 'util'
 import svelteConfig from '../svelte.config.js'
 import assetOverridePlugin from './plugins/assetOverridePlugin'
+import bufferPatchPlugin from './plugins/bufferPatchFunction.js'
+import importFolderPlugin from './plugins/importFolder'
 import mcbCompressionPlugin from './plugins/mcbCompressionPlugin'
 import packagerPlugin from './plugins/packagerPlugin'
 import sveltePlugin from './plugins/sveltePlugin'
-import inlineWorkerPlugin from './plugins/workerPlugin'
 const PACKAGE = JSON.parse(fs.readFileSync('./package.json', 'utf-8'))
 
 const INFO_PLUGIN: esbuild.Plugin = {
@@ -55,18 +57,17 @@ const DEPENDENCY_QUARKS: esbuild.Plugin = {
 			}
 		})
 		build.onResolve({ filter: /^deepslate\// }, args => {
-			// esbuild respects the package.json "exports" field
-			// but the version of typescript we're using doesn't
-			// so we need to resolve the path manually
-			const file_path = path.resolve(
-				process.cwd(),
-				path.dirname(require.resolve('deepslate')),
-				'..',
-				args.path.split('/').slice(1).join('/'),
-				'index.js'
-			)
 			return {
-				path: file_path,
+				// esbuild respects the package.json "exports" field
+				// but the version of typescript we're using doesn't
+				// so we need to resolve the path manually
+				path: path.resolve(
+					process.cwd(),
+					path.dirname(require.resolve('deepslate')),
+					'..',
+					args.path.split('/').slice(1).join('/'),
+					'index.js'
+				),
 			}
 		})
 	},
@@ -76,7 +77,7 @@ function createBanner() {
 		return s.replace(new RegExp(`(?![^\\n]{1,${width}}$)([^\\n]{1,${width}})\\s`, 'g'), '$1\n')
 	}
 
-	const LICENSE = fs.readFileSync('./LICENSE').toString()
+	const license = fs.readFileSync('./LICENSE').toString()
 	const fetchbot = PACKAGE.contributors[0]
 	const dominexis = PACKAGE.contributors[1]
 	let lines: string[] = [
@@ -107,7 +108,7 @@ function createBanner() {
 		`${PACKAGE.repository.url as string}`,
 		``,
 		`[ LICENSE ]`,
-		...LICENSE.split('\n').map(v => v.trim()),
+		...license.split('\n').map(v => v.trim()),
 	]
 
 	const maxLength = Math.max(...lines.map(line => line.length))
@@ -133,7 +134,34 @@ function createBanner() {
 		return '│ ' + ' '.repeat(l) + v + ' '.repeat(r) + ' │'
 	})
 
-	const banner = '\n' + [header, ...lines, footer].map(v => `//?? ${v}`).join('\n') + '\n'
+	const message = `
+# Animated Java does not work in Blockbench 5
+
+You will need to install and use Blockbench v4.12.6 to use Animated Java until it is updated to support 5.
+
+## How to install Blockbench v4.12.6
+
+1. Download the portable version of Blockbench 4.12.6 [here](https://github.com/JannisX11/blockbench/releases/download/v4.12.6/Blockbench_4.12.6_portable.exe).
+2. Once it's finished downloading, double click the .exe file to run it.
+
+If you're familiar with command line interfaces, you can use [Envbench](https://www.npmjs.com/package/envbench) to install and manage multiple Blockbench versions side by side.
+`
+
+	const startupCode = `(() => {
+	if (!compareVersions('5.0.0', Blockbench.version)) {
+		const message = \`${message}\`;
+		Blockbench.showMessageBox({title: 'Animated Java - Incompatible Blockbench Version',message,width:600});
+		requestAnimationFrame(() => Plugins.registered['animated_java'].uninstall());
+		throw new Error(message);
+	}
+})()`.trim()
+
+	const banner =
+		'\n' +
+		[header, ...lines, footer].map(v => `//?? ${v}`).join('\n') +
+		'\n\n' +
+		startupCode +
+		'\n'
 
 	return {
 		js: banner,
@@ -143,7 +171,7 @@ function createBanner() {
 const DEFINES: Record<string, string> = {}
 
 Object.entries(process.env).forEach(([key, value]) => {
-	if (key.match(/[^A-Za-z0-9_]/i)) return
+	if (/[^A-Za-z0-9_]/i.exec(key)) return
 	DEFINES[`process.env.${key}`] = JSON.stringify(value)
 })
 
@@ -162,7 +190,10 @@ const yamlPlugin: (opts: {
 		})
 		build.onLoad({ filter: /.*/, namespace: 'yaml' }, async args => {
 			const yamlContent = await fs.promises.readFile(args.path)
-			let parsed = load(new TextDecoder().decode(yamlContent), options?.loadOptions)
+			let parsed = load(
+				new TextDecoder().decode(new Uint8Array(yamlContent)),
+				options?.loadOptions
+			)
 			if (options?.transform && options.transform(parsed, args.path) !== void 0)
 				parsed = options.transform(parsed, args.path)
 			return {
@@ -174,40 +205,20 @@ const yamlPlugin: (opts: {
 	},
 })
 
-const devWorkerConfig: esbuild.BuildOptions = {
-	bundle: true,
-	minify: false,
-	platform: 'node',
-	sourcemap: 'inline',
-	sourceRoot: 'http://animated-java/',
-	loader: { '.svg': 'dataurl', '.ttf': 'binary', '.mcb': 'text' },
-	plugins: [
-		// inlineImage({
-		// 	limit: -1,
-		// }),
-		// @ts-ignore
-		// ImportGlobPlugin.default(),
-		// INFO_PLUGIN,
-		// yamlPlugin({}),
-		// sveltePlugin(svelteConfig),
-		// packagerPlugin(),
-	],
-	// format: 'iife',
-	// define: DEFINES,
-}
-const devConfig: esbuild.BuildOptions = {
+const COMMON_CONFIG: esbuild.BuildOptions = {
 	banner: createBanner(),
 	entryPoints: ['./src/index.ts'],
-	outfile: `./dist/${PACKAGE.name as string}.js`,
+	outfile: `./dist/${PACKAGE.name}.js`,
 	bundle: true,
-	minify: false,
 	platform: 'node',
-	sourcemap: 'inline',
-	sourceRoot: 'http://animated-java/',
-	loader: { '.svg': 'dataurl', '.ttf': 'binary', '.mcb': 'text' },
+	loader: { '.svg': 'dataurl', '.ttf': 'binary', '.css': 'text' },
 	plugins: [
-		// @ts-ignore
+		// @ts-expect-error broken default import
+		vscodeProblemsPatch.default(),
+		importFolderPlugin,
+		// @ts-expect-error broken default import
 		ImportGlobPlugin.default(),
+		bufferPatchPlugin(),
 		inlineImage({
 			limit: -1,
 		}),
@@ -215,7 +226,6 @@ const devConfig: esbuild.BuildOptions = {
 		yamlPlugin({}),
 		sveltePlugin(svelteConfig),
 		packagerPlugin(),
-		inlineWorkerPlugin(devWorkerConfig),
 		assetOverridePlugin(),
 		mcbCompressionPlugin(),
 		DEPENDENCY_QUARKS,
@@ -226,46 +236,28 @@ const devConfig: esbuild.BuildOptions = {
 	treeShaking: true,
 }
 
-const prodConfig: esbuild.BuildOptions = {
-	entryPoints: ['./src/index.ts'],
-	outfile: `./dist/${PACKAGE.name as string}.js`,
-	bundle: true,
+const DEV_CONFIG: esbuild.BuildOptions = {
+	...COMMON_CONFIG,
+	minify: false,
+	sourcemap: 'inline',
+	sourceRoot: 'http://animated-java/',
+}
+
+const PROD_CONFIG: esbuild.BuildOptions = {
+	...COMMON_CONFIG,
 	minify: true,
-	platform: 'node',
-	loader: { '.svg': 'dataurl', '.ttf': 'binary', '.mcb': 'text' },
-	plugins: [
-		// @ts-ignore
-		ImportGlobPlugin.default(),
-		inlineImage({
-			limit: -1,
-		}),
-		INFO_PLUGIN,
-		inlineWorkerPlugin({}),
-		yamlPlugin({}),
-		sveltePlugin(svelteConfig),
-		packagerPlugin(),
-		inlineWorkerPlugin({}),
-		assetOverridePlugin(),
-		mcbCompressionPlugin(),
-		DEPENDENCY_QUARKS,
-	],
-	alias: { svelte: 'svelte' },
 	keepNames: true,
-	banner: createBanner(),
 	drop: ['debugger'],
-	format: 'iife',
-	define: DEFINES,
-	treeShaking: true,
 	metafile: true,
 }
 
 async function buildDev() {
-	const ctx = await esbuild.context(devConfig)
+	const ctx = await esbuild.context(DEV_CONFIG)
 	await ctx.watch()
 }
 
 async function buildProd() {
-	const result = await esbuild.build(prodConfig).catch(() => process.exit(1))
+	const result = await esbuild.build(PROD_CONFIG).catch(() => process.exit(1))
 	if (result.errors.length > 0) {
 		console.error(result.errors)
 		process.exit(1)
