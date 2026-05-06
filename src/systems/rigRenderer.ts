@@ -1,6 +1,9 @@
-import * as crypto from 'crypto'
+import { TextComponent } from 'book-and-quill'
+import * as crypto from 'node:crypto'
+import { getFsModule } from '../constants'
 import type {
 	IBlueprintDisplayEntityConfigJSON,
+	IBlueprintInteractionConfigJSON,
 	IBlueprintLocatorConfigJSON,
 	IBlueprintVariantJSON,
 } from '../formats/blueprint'
@@ -20,8 +23,7 @@ import {
 	restoreSceneAngle,
 	updatePreview,
 } from './animationRenderer'
-import { IntentionalExportError } from './exporter'
-import { JsonText } from './jsonText'
+import { IntentionalExportError } from './errors'
 
 export interface IRenderedFace {
 	uv: number[]
@@ -37,12 +39,19 @@ export interface IRenderedElement {
 	shade?: boolean
 	rotation?:
 		| {
-				angle: number
-				axis: string
-				origin: number[]
+				x: number
+				y: number
+				z: number
+				origin: ArrayVector3
 				rescale?: boolean
 		  }
-		| number[]
+		| {
+				angle: number
+				axis: 'y' | 'x' | 'z'
+				origin: ArrayVector3
+				rescale?: boolean
+		  }
+		| ArrayVector3
 	faces?: Record<string, IRenderedFace>
 	light_emission?: number
 }
@@ -142,6 +151,14 @@ export interface IRenderedNodes {
 		max_distance: number
 		config?: IBlueprintLocatorConfigJSON
 	}
+	Interaction: IRenderedNode & {
+		type: 'interaction'
+		width: number
+		height: number
+		/** The maximum distance this node travels away from the root entity while animating. */
+		max_distance: number
+		config: IBlueprintInteractionConfigJSON
+	}
 }
 
 export type AnyRenderedNode = IRenderedNodes[keyof IRenderedNodes]
@@ -190,6 +207,10 @@ export interface IRenderedRig {
 	 * Whether or not this rig includes Cubes
 	 */
 	includes_custom_models: boolean
+	/**
+	 * The target Minecraft version for this rig, which may affect how the rig is rendered.
+	 */
+	target_minecraft_version: string
 }
 
 function renderCube(cube: Cube, rig: IRenderedRig, model: IRenderedModel) {
@@ -207,12 +228,23 @@ function renderCube(cube: Cube, rig: IRenderedRig, model: IRenderedModel) {
 
 	if (cube.shade === false) element.shade = false
 
-	if (!(cube.rotation.allEqual(0) && cube.origin.allEqual(0))) {
-		const axis = cube.rotationAxis() || 'y'
+	// If target version is 1.21.9 or higher, we can use free rotation
+	if (!compareVersions('1.21.9', rig.target_minecraft_version)) {
+		element.rotation = {
+			x: cube.rotation[0],
+			y: cube.rotation[1],
+			z: cube.rotation[2],
+			origin: cube.origin.slice() as ArrayVector3,
+		}
+		if (cube.rescale) {
+			element.rotation.rescale = true
+		}
+	} else if (!(cube.rotation.allEqual(0) && cube.origin.allEqual(0))) {
+		const axis = (cube.rotationAxis() || 'y') as 'y' | 'x' | 'z'
 		element.rotation = {
 			angle: cube.rotation[getAxisNumber(axis)],
 			axis,
-			origin: cube.origin,
+			origin: cube.origin.slice() as ArrayVector3,
 		}
 		if (cube.rescale) {
 			element.rotation.rescale = true
@@ -220,8 +252,8 @@ function renderCube(cube: Cube, rig: IRenderedRig, model: IRenderedModel) {
 	} else if (cube.rescale) {
 		element.rotation = {
 			angle: 0,
-			axis: cube.rotation_axis || 'y',
-			origin: cube.origin,
+			axis: (cube.rotation_axis || 'y') as 'y' | 'x' | 'z',
+			origin: cube.origin.slice() as ArrayVector3,
 			rescale: true,
 		}
 	}
@@ -231,7 +263,9 @@ function renderCube(cube: Cube, rig: IRenderedRig, model: IRenderedModel) {
 		element.from = element.from.map((v, i) => v - parent.origin[i])
 		element.to = element.to.map((v, i) => v - parent.origin[i])
 		if (element.rotation && !Array.isArray(element.rotation)) {
-			element.rotation.origin = element.rotation.origin.map((v, i) => v - parent.origin[i])
+			element.rotation.origin = element.rotation.origin.map(
+				(v, i) => v - parent.origin[i]
+			) as ArrayVector3
 		}
 	}
 
@@ -275,7 +309,9 @@ function renderCube(cube: Cube, rig: IRenderedRig, model: IRenderedModel) {
 
 	if (Object.keys(element.faces).length === 0 && !isPartOfStablePlayerDisplay(cube)) return
 
+	// @ts-expect-error - Broken BB types
 	if (cube.light_emission) {
+		// @ts-expect-error - Broken BB types
 		element.light_emission = cube.light_emission
 	}
 
@@ -285,6 +321,8 @@ function renderCube(cube: Cube, rig: IRenderedRig, model: IRenderedModel) {
 
 const TEXTURE_RESOURCE_LOCATION_CACHE = new Map<string, IMinecraftResourceLocation>()
 export function getTextureResourceLocation(texture: Texture, rig: IRenderedRig) {
+	const { existsSync, statSync } = getFsModule()
+
 	if (TEXTURE_RESOURCE_LOCATION_CACHE.has(texture.uuid)) {
 		return TEXTURE_RESOURCE_LOCATION_CACHE.get(texture.uuid)!
 	}
@@ -292,7 +330,7 @@ export function getTextureResourceLocation(texture: Texture, rig: IRenderedRig) 
 	let textureName = texture.name.replace(/\.png$/, '')
 	textureName = sanitizeStorageKey(textureName) + '.png'
 
-	if (texture.path && fs.existsSync(texture.path) && fs.statSync(texture.path).isFile()) {
+	if (texture.path && existsSync(texture.path) && statSync(texture.path).isFile()) {
 		const parsed = parseResourcePackPath(texture.path)
 		if (parsed) {
 			TEXTURE_RESOURCE_LOCATION_CACHE.set(texture.uuid, parsed)
@@ -452,7 +490,9 @@ function renderGroup(
 		element.from = element.from.map(v => v * scale + 8)
 		element.to = element.to.map(v => v * scale + 8)
 		if (element.rotation && !Array.isArray(element.rotation)) {
-			element.rotation.origin = element.rotation.origin.map(v => v * scale + 8)
+			element.rotation.origin = element.rotation.origin.map(
+				v => v * scale + 8
+			) as ArrayVector3
 		}
 	}
 
@@ -540,7 +580,7 @@ function renderTextDisplay(display: TextDisplay, rig: IRenderedRig): INodeStruct
 		parent: parentId,
 		text: display.text,
 		line_width: display.lineWidth,
-		background_color: JsonText.moveHex8AlphaToStart(backgroundColor.toHex8String()),
+		background_color: TextComponent.moveHex8AlphaToStart(backgroundColor.toHex8String()),
 		background_alpha: backgroundColor.getAlpha(),
 		align: display.align,
 		shadow: display.shadow,
@@ -561,7 +601,7 @@ function renderTextDisplay(display: TextDisplay, rig: IRenderedRig): INodeStruct
 
 function renderLocator(locator: Locator, rig: IRenderedRig) {
 	if (!locator.export) return
-	const parentId = (locator.parent instanceof Group ? locator.parent.uuid : locator.parent)!
+	const parentId = typeof locator.parent === 'string' ? locator.parent : locator.parent.uuid
 
 	const renderedLocator: IRenderedNodes['Locator'] = {
 		type: 'locator',
@@ -577,9 +617,30 @@ function renderLocator(locator: Locator, rig: IRenderedRig) {
 	rig.nodes[locator.uuid] = renderedLocator
 }
 
+function renderInteraction(box: BoundingBox, rig: IRenderedRig) {
+	if (!box.export) return
+	const parentId = box.parent instanceof Group ? box.parent.uuid : undefined
+
+	const renderedInteraction: IRenderedNodes['Interaction'] = {
+		type: 'interaction',
+		name: box.name,
+		storage_name: sanitizeStorageKey(box.name),
+		uuid: box.uuid,
+		parent: parentId,
+		// @ts-expect-error - Broken BB types
+		config: structuredClone(box.config),
+		max_distance: 0,
+		default_transform: {} as INodeTransform,
+		width: box.to[0] - box.from[0],
+		height: box.to[1] - box.from[1],
+	}
+
+	rig.nodes[box.uuid] = renderedInteraction
+}
+
 function renderCamera(camera: ICamera, rig: IRenderedRig) {
 	if (!camera.export) return
-	const parentId = (camera.parent instanceof Group ? camera.parent.uuid : camera.parent)!
+	const parentId = typeof camera.parent === 'string' ? camera.parent : camera.parent.uuid
 
 	const renderedCamera: IRenderedNodes['Camera'] = {
 		type: 'camera',
@@ -696,6 +757,14 @@ export function hashRig(rig: IRenderedRig) {
 				}
 				break
 			}
+
+			case 'interaction': {
+				hash.update(`;${node.width};${node.height}`)
+				if (node.config) {
+					hash.update(';' + JSON.stringify(node.config))
+				}
+				break
+			}
 		}
 	}
 	return hash.digest('hex')
@@ -709,6 +778,7 @@ function renderVariant(variant: Variant, rig: IRenderedRig): IRenderedVariant {
 }
 
 function getDefaultTransforms(rig: IRenderedRig) {
+	// @ts-expect-error - Broken BB types
 	const anim = new Blockbench.Animation()
 	correctSceneAngle()
 	updatePreview(anim, 0)
@@ -730,6 +800,7 @@ export function renderRig(modelExportFolder: string, textureExportFolder: string
 		model_export_folder: modelExportFolder,
 		texture_export_folder: textureExportFolder,
 		includes_custom_models: false,
+		target_minecraft_version: Project!.animated_java.target_minecraft_version,
 	}
 
 	const defaultVariant = Variant.getDefault()
@@ -762,6 +833,10 @@ export function renderRig(modelExportFolder: string, textureExportFolder: string
 			}
 			case node instanceof VanillaBlockDisplay: {
 				renderBlockDisplay(node, rig)
+				break
+			}
+			case node instanceof BoundingBox: {
+				renderInteraction(node, rig)
 				break
 			}
 			case node instanceof Cube: {

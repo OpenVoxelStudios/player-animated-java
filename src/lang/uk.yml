@@ -1,0 +1,759 @@
+animated_java.menubar.label: Animated Java
+
+animated_java.format.blueprint.name: Креслення
+
+### Actions
+animated_java.action.open_blueprint_settings.name: Налаштування креслення
+animated_java.action.open_documentation.name: Документація
+animated_java.action.open_changelog.name: Журнал змін
+animated_java.action.open_about.name: Про нас
+animated_java.action.open_display_entity_config.name: Налаштування дисплей-сутностей
+animated_java.action.open_locator_config.name: Налаштування локатора
+animated_java.action.export.name: Експорт
+animated_java.action.export_debug.name: Експорт (Налагодження)
+animated_java.action.export_all.name: Експорт усього
+animated_java.action.export_all.description: |-
+  Експортувати усі відкриті креслення.
+animated_java.action.export_all_debug.name: Експорт усього (Налагодження)
+animated_java.action.export_all_debug.description: |-
+  Експортувати усі відкриті креслення у режимі налагодження.
+animated_java.action.extract.name: Екстрактувати
+animated_java.action.extract.confirm: Підтвердити екстрактування
+animated_java.action.create_text_display.title: Додавання текст-дисплея
+animated_java.action.create_vanilla_item_display.title: Додавання предмет-дисплея
+animated_java.action.create_vanilla_block_display.title: Додавання блок-дисплея
+animated_java.action.copy_display_entity_config.name: Копіювати налаштування дисплей-сутності
+animated_java.action.copy_display_entity_config.message: Скопійовано налаштування дисплей-сутності з "{0}"
+animated_java.action.paste_display_entity_config.name: Вставити налаштування дисплей-сутності
+animated_java.action.paste_display_entity_config.message: Вставлено налаштування дисплей-сутності з  "{0}"
+
+### Popups
+animated_java.popup.loading.loading: Завантаження Animated Java...
+animated_java.popup.loading.success: Animated Java завантажено успішно!
+animated_java.popup.loading.offline: |-
+  Не вдалося підключити Animated Java!
+  Деякі функції можуть бути недоступними.
+
+animated_java.popup.installed_popup.title: Дякуємо за встановлення!
+animated_java.popup.installed_popup.close_button: Почнемо анімувати!
+
+animated_java.popup.incompatability_popup.title: Виявлено несумісність Animated Java
+animated_java.popup.incompatability_popup.description: |-
+  У вас встановлені плагіни, які спричиняють проблеми з Animated Java.
+  Будь ласка, вимкніть або видаліть ці плагіни та перезапустіть Blockbench, щоб використовувати Animated Java:
+animated_java.popup.incompatability_popup.disable_button: Вимкнути плагін
+animated_java.popup.incompatability_popup.button.disable_all: Вимкнути усі несумісні плагіни
+animated_java.popup.incompatability_popup.button.ignore: Ігнорувати та продовжити (не рекомендується)
+animated_java.plugin_dialog.incompatability_notice: |-
+  Цей плагін спричиняє проблеми з Animated Java.
+
+  Ви не зможете встановити цей плагін, доки встановлено Animated Java.
+
+### Dialogs
+animated_java.dialog.reset: Скинути до заводських налаштувань
+
+## About
+animated_java.dialog.about.title: Про Animated Java
+animated_java.dialog.about.close_button: Закрити
+
+## Changelog
+animated_java.dialog.changelog_dialog.title: Animated Java Журнал змін
+
+## Unexpected Error Dialog
+animated_java.dialog.unexpected_error.title: Сталася непередбачена помилка!
+animated_java.dialog.unexpected_error.close_button: Закрити
+animated_java.dialog.unexpected_error.copy_error_message_button.message: Повідомлення про помилку скопійовано до буфера обміну!
+animated_java.dialog.unexpected_error.copy_error_message_button.description: Натисніть, щоб скопіювати повідомлення про помилку.
+animated_java.dialog.unexpected_error.paragraph: 'Будь ласка, повідомте про цю помилку в нашому {0} та створіть квиток у каналі #animated-java-support або створіть завдання на нашому {1}. Дякуємо!'
+## Blueprint Settings Dialog
+animated_java.dialog.blueprint_settings.title: Налаштування креслення
+animated_java.dialog.blueprint_settings.project_settings.title: Проєкт
+
+animated_java.dialog.blueprint_settings.advanced_settings_warning: Розширені налаштування слід використовувати лише за необхідності!
+
+animated_java.dialog.blueprint_settings.project_name.title: Назва
+animated_java.dialog.blueprint_settings.project_name.description: |-
+  Назва файлу креслення.
+
+  Це буде перезаписано, якщо ви збережете креслення під іншою назвою.
+
+animated_java.dialog.blueprint_settings.texture_size.title: Розмір текстури
+animated_java.dialog.blueprint_settings.texture_size.description: |-
+  Роздільна здатність редактора UV.
+
+  Це має відповідати розміру найбільшої текстури у вашому кресленні.
+animated_java.dialog.blueprint_settings.texture_size.warning.not_square: Розмір текстури має бути квадратним!
+animated_java.dialog.blueprint_settings.texture_size.warning.not_a_power_of_2: Розмір текстури має бути степенем числа 2, якщо це можливо!
+animated_java.dialog.blueprint_settings.texture_size.warning.does_not_match_largest_texture: Обраний розмір текстури не відповідає розміру найбільшої текстури у вашому кресленні!
+
+# Export Settings
+animated_java.dialog.blueprint_settings.export_settings.title: Експорт
+
+animated_java.dialog.blueprint_settings.export_namespace.title: Простір імен
+animated_java.dialog.blueprint_settings.export_namespace.description: |-
+  Простір імен, який буде використано під час генерації ресурспаку та датапаку.
+
+  Рекомендується використовувати унікальний простір імен, щоб уникнути конфліктів з іншими ресурспаками та датапаками.
+animated_java.dialog.blueprint_settings.export_namespace.error.empty: Простір імен експорту не може бути порожнім!
+animated_java.dialog.blueprint_settings.export_namespace.error.reserved: Простір імен експорту "{0}" зарезервовано для внутрішньої роботи плагіна! Будь ласка, виберіть інший простір імен.
+animated_java.dialog.blueprint_settings.export_namespace.error.invalid_characters: Простір імен експорту містить заборонені символи! Простори імен можуть містити лише літери, цифри та нижнє підкреслення.
+
+animated_java.dialog.blueprint_settings.show_render_box.title: Показати область рендерингу
+animated_java.dialog.blueprint_settings.show_render_box.description: Якщо увімкнено, відображає коробку рендерингу в редакторі.
+
+animated_java.dialog.blueprint_settings.auto_render_box.title: Авто-розмір області рендерингу
+animated_java.dialog.blueprint_settings.auto_render_box.description: |-
+  Якщо увімкнено, область рендерингу автоматично розраховуватиметься на основі геометрії моделі.
+animated_java.dialog.blueprint_settings.render_box.title: Розмір області рендерингу
+animated_java.dialog.blueprint_settings.render_box.description: |-
+  [Розмір та Висота](https://minecraft.wiki/w/Display#Entity_data) дисплей сутності рига.
+
+animated_java.dialog.blueprint_settings.view_range.title: Область огляду
+animated_java.dialog.blueprint_settings.view_range.description: |-
+  [Область огляду](https://minecraft.wiki/w/Display#Entity_data) рига за замовчуванням.
+
+animated_java.dialog.blueprint_settings.enable_plugin_mode.title: Режим плагіна
+animated_java.dialog.blueprint_settings.enable_plugin_mode.description: |-
+  Якщо увімкнено, проєкт буде експортований у вигляді файлу JSON спеціально для використання плагінами.
+
+animated_java.dialog.blueprint_settings.resource_pack_export_mode.title: Режим експорту ресурспаку
+animated_java.dialog.blueprint_settings.resource_pack_export_mode.options.folder: Папка
+animated_java.dialog.blueprint_settings.resource_pack_export_mode.options.zip: ZIP-архів
+animated_java.dialog.blueprint_settings.resource_pack_export_mode.options.none: Нічого
+
+animated_java.dialog.blueprint_settings.data_pack_export_mode.title: Режим експорту датапака
+animated_java.dialog.blueprint_settings.data_pack_export_mode.options.folder: Папка
+animated_java.dialog.blueprint_settings.data_pack_export_mode.options.zip: ZIP-архів
+animated_java.dialog.blueprint_settings.data_pack_export_mode.options.none: Нічого
+
+animated_java.dialog.blueprint_settings.target_minecraft_version.title: Вибрана Minecraft версія
+animated_java.dialog.blueprint_settings.target_minecraft_version.description: |-
+  Версія Minecraft, для якої буде експортовано проєкт.
+
+  Якщо версія, яку ви використовуєте, недоступна, виберіть найближчу версію нижче потрібної.
+
+  Тобто, якщо ви використовуєте версію `1.21.8`, виберіть `1.21.5`.
+
+  Деякі функції можуть бути змінені або недоступні залежно від обраної версії.
+
+  Animated Java повідомить вас про будь-які зміни, які будуть необхідні.
+
+# Resource Pack Settings
+animated_java.dialog.blueprint_settings.resource_pack_settings.title: Ресурспак
+
+animated_java.dialog.blueprint_settings.enable_advanced_resource_pack_settings.title: Розширені налаштування
+
+animated_java.dialog.blueprint_settings.enable_advanced_resource_pack_folders.title: Розширені папки
+
+animated_java.dialog.blueprint_settings.display_item.title: Предмет-дисплей
+animated_java.dialog.blueprint_settings.display_item.description: |-
+  Предмет, що використовується для моделей рига.
+
+  Багато креслень в одному й тому ж проєкті можуть використовувати один і той самий об’єкт, і вони будуть автоматично об’єднані під час експорту.
+animated_java.dialog.blueprint_settings.display_item.error.no_item_selected: Предмет не обрано!
+animated_java.dialog.blueprint_settings.display_item.error.invalid_item_id.no_namespace: Вибрано неприпустимий ID предмета! ID предметів повинні бути у форматі `namespace:item_id`.
+animated_java.dialog.blueprint_settings.display_item.error.invalid_item_id.whitespace: Вибрано неприпустимий ID предмета! ID предметів не повинні містити пробілів.
+animated_java.dialog.blueprint_settings.display_item.warning.item_does_not_exist: Обраний предмет не існує у базовій версії гри!
+animated_java.dialog.blueprint_settings.display_item.warning.item_model_not_generated: Вибраний предмет не використовує `minecraft:item/generated` як свій батьківський предмет. Це може спричинити проблеми в грі.
+animated_java.dialog.blueprint_settings.display_item.error.item_model_not_found: |-
+  Вибраний предмет не має файлу моделі у базовому ресурспаку!
+
+  Якщо ви вважаєте, що це помилка, спробуйте перезапустити Blockbench і почекати, поки завантаження AJ завершиться, перш ніж відкривати креслення.
+
+animated_java.dialog.blueprint_settings.custom_model_data_offset.title: CMD Зсув
+animated_java.dialog.blueprint_settings.custom_model_data_offset.description: |-
+  Зміщує значення Custom Model Data (CMD), що використовуються в предикатах об’єкта відображення, на вказане значення.
+
+animated_java.dialog.blueprint_settings.resource_pack.title: Ресурспак
+animated_java.dialog.blueprint_settings.resource_pack.description: |-
+  Основна папка ресурспаку для експорту.
+
+  Обраний ресурспак повинен містити файл `pack.mcmeta`.
+animated_java.dialog.blueprint_settings.resource_pack.warning.missing_assets_folder: Обраний ресурспак не містить папку `assets`!
+animated_java.dialog.blueprint_settings.resource_pack.error.no_folder_selected: Папка не обрана!
+animated_java.dialog.blueprint_settings.resource_pack.error.folder_does_not_exist: Вибрана папка не існує!
+animated_java.dialog.blueprint_settings.resource_pack.error.not_a_folder: Вказаний шлях не є папкою!
+animated_java.dialog.blueprint_settings.resource_pack.error.missing_pack_mcmeta: У вибраній папці немає файлу pack.mcmeta!
+
+animated_java.dialog.blueprint_settings.resource_pack_zip.title: Ресурспак ZIP-архів
+animated_java.dialog.blueprint_settings.resource_pack_zip.description: Шлях до архіву .zip для експорту.
+animated_java.dialog.blueprint_settings.resource_pack_zip.error.no_file_selected: Файл не обрано!
+animated_java.dialog.blueprint_settings.resource_pack_zip.error.not_a_file: Вказаний шлях не є файлом!
+
+# Data Pack Settings
+animated_java.dialog.blueprint_settings.data_pack_settings.title: Датапак
+
+animated_java.dialog.blueprint_settings.data_pack.title: Датапак
+animated_java.dialog.blueprint_settings.data_pack.description: |-
+  Основна папка датапака для експорту.
+
+  Обраний датапак повинен містити файл `pack.mcmeta`.
+animated_java.dialog.blueprint_settings.data_pack.warning.missing_data_folder: Обраний датапак не містить папку `data`!
+animated_java.dialog.blueprint_settings.data_pack.error.no_folder_selected: Папка не обрана!
+animated_java.dialog.blueprint_settings.data_pack.error.folder_does_not_exist: Вибрана папка не існує!
+animated_java.dialog.blueprint_settings.data_pack.error.not_a_folder: Вказаний шлях не є папкою!
+animated_java.dialog.blueprint_settings.data_pack.error.missing_pack_mcmeta: У вибраній папці немає файлу pack.mcmeta!
+
+animated_java.dialog.blueprint_settings.data_pack_zip.title: Датапак ZIP-архів
+animated_java.dialog.blueprint_settings.data_pack_zip.description: Шлях до архіву .zip для експорту.
+animated_java.dialog.blueprint_settings.data_pack_zip.error.no_file_selected: Файл не обрано!
+animated_java.dialog.blueprint_settings.data_pack_zip.error.not_a_file: Вказаний шлях не є файлом!
+
+animated_java.dialog.blueprint_settings.on_summon_function.title: Функція при виклику
+animated_java.dialog.blueprint_settings.on_summon_function.description: |-
+  Команди, що виконуються `as` (від імені) та `at` (на місці) сутності під час виклику.
+
+  Сприймайте це поле як файл `.mcfunction`.
+
+  Підтримує синтаксис [MC-Build](https://mcbuild.dev).
+
+animated_java.dialog.blueprint_settings.on_remove_function.title: Функція під час видалення
+animated_java.dialog.blueprint_settings.on_remove_function.description: |-
+  Команди, що виконуються `as` (від імені) та `at` (на місці) сутності під час видалення.
+
+  Сприймайте це поле як файл `.mcfunction`.
+
+  Підтримує синтаксис [MC-Build](https://mcbuild.dev).
+
+animated_java.dialog.blueprint_settings.on_pre_tick_function.title: Функція до тіка
+animated_java.dialog.blueprint_settings.on_pre_tick_function.description: |-
+  Команди, що виконуються `as` (від імені) та `at` (на місці) сутності *перед* тік-логікою Animated Java.
+
+  Сприймайте це поле як файл `.mcfunction`.
+
+  Підтримує синтаксис [MC-Build](https://mcbuild.dev).
+
+animated_java.dialog.blueprint_settings.on_post_tick_function.title: Функція після тіка
+animated_java.dialog.blueprint_settings.on_post_tick_function.description: |-
+  Команди, що виконуються `as` (від імені) та `at` (на місці) сутності *після* тік-логіки Animated Java.
+
+  Сприймайте це поле як файл `.mcfunction`.
+
+  Підтримує синтаксис [MC-Build](https://mcbuild.dev).
+
+animated_java.dialog.blueprint_settings.interpolation_duration.title: Тривалість інтерполяції
+animated_java.dialog.blueprint_settings.interpolation_duration.description: |-
+  [Тривалість інтерполяції](https://minecraft.wiki/w/Display#Entity_data) рига за замовчуванням.
+
+  Чим вище значення, тим плавніша анімація, але менша чутливість.
+
+animated_java.dialog.blueprint_settings.teleportation_duration.title: Тривалість телепортації
+animated_java.dialog.blueprint_settings.teleportation_duration.description: |-
+  [Тривалість телепортації](https://minecraft.wiki/w/Display#Entity_data) рига за замовчуванням.
+
+  Чим вище значення, тим плавніші великі рухи, але менша чутливість.
+
+animated_java.dialog.blueprint_settings.auto_update_rig_orientation.title: Автоматичне оновлення орієнтації рига
+animated_java.dialog.blueprint_settings.auto_update_rig_orientation.description: |-
+  Коли **увімкнено**, синхронізує позиції та обертання всіх нодових об’єктів із кореневим об’єктом щотика.
+  Дозволяє просто телепортувати сутність, щоб перемістити риг.
+
+  Коли **вимкнено**, вам слід використовувати функцію move для переміщення рига:
+
+  ```
+  execute as @e[tag=aj.<простір_імен>_root] \
+      positioned <x> <y> <z> rotated <yaw> <pitch> run \
+      function animated_java:<простір_імен>/move
+  ```
+
+  Синхронізація позицій і обертання нодів щотика може створювати навантаження, особливо для великих ригів.
+  Вимкнення цього параметра може підвищити продуктивність, але за рахунок зручності.
+
+animated_java.dialog.blueprint_settings.use_storage_for_animation.title: Використовувати сховище для анімації
+animated_java.dialog.blueprint_settings.use_storage_for_animation.description: |-
+  Якщо увімкнено, сховище NBT використовуватиметься для зберігання даних анімації замість функцій.
+
+  Це значно зменшує обсяг експортованого датапаку, хоча й є набагато менш ефективним.
+
+# Plugin Settings
+animated_java.dialog.blueprint_settings.baked_animations.title: Запечені анімації
+animated_java.dialog.blueprint_settings.baked_animations.description: |-
+  Чи запікати експортовані анімації.
+  Запечені кадри анімації заздалегідь обробляються та зберігаються в експортованому файлі JSON, що зменшує складність рендерингу моделі в грі.
+  Деякі плагіни потребуватимуть цю опцію для коректної роботи.
+
+animated_java.dialog.blueprint_settings.json_file.title: JSON-файл
+animated_java.dialog.blueprint_settings.json_file.description: Шлях до JSON-файлу для експорту.
+animated_java.dialog.blueprint_settings.json_file.error.no_file_selected: Файл не обрано!
+animated_java.dialog.blueprint_settings.json_file.error.not_a_file: Вказаний шлях не є файлом!
+
+## Bone Config Dialog
+animated_java.dialog.display_entity.title: Налаштування дисплей сутності для "{0}"
+
+animated_java.dialog.display_entity.node_options.title: Нод
+animated_java.dialog.display_entity.per_variant_options.title: Для кожного варіанту
+
+animated_java.dialog.display_entity.on_summon_function.title: Функція при виклику
+animated_java.dialog.display_entity.on_summon_function.description: |-
+  Команди, що виконуються `as` (від імені) та `at` (на місці) дисплей сутності під час виклику.
+
+  Сприймайте це поле як файл `.mcfunction`.
+
+  Підтримує синтаксис [MC-Build](https://mcbuild.dev).
+
+animated_java.dialog.display_entity.on_apply_function.title: Функція при застосуванні
+animated_java.dialog.display_entity.on_apply_function.description: |-
+  Команди, що виконуються `as` (від імені) сутності дисплея під час застосування варіанту.
+
+  Сприймайте це поле як файл `.mcfunction`.
+
+  Підтримує синтаксис [MC-Build](https://mcbuild.dev).
+
+animated_java.dialog.display_entity.custom_name.title: Назва
+animated_java.dialog.display_entity.custom_name.description: Користувацька назва нода.
+animated_java.dialog.display_entity.custom_name.invalid_json.error: |-
+  Неправильний текст JSON!
+  {0}
+
+animated_java.dialog.display_entity.custom_name_visible.title: Видимість імені
+animated_java.dialog.display_entity.custom_name_visible.description: Чи вмикати відображення імені.
+
+animated_java.dialog.display_entity.glowing.title: Свічення
+animated_java.dialog.display_entity.glowing.description: Чи вмикати світіння нода в грі.
+
+animated_java.dialog.display_entity.override_glow_color.title: Користувацький колір свічення
+animated_java.dialog.display_entity.override_glow_color.description: Чи використовувати користувацький колір світіння.
+
+animated_java.dialog.display_entity.glow_color.title: Колір світіння
+animated_java.dialog.display_entity.glow_color.description: Визначає колір світіння нода.
+
+animated_java.dialog.display_entity.shadow_radius.title: Радіус тіні
+animated_java.dialog.display_entity.shadow_radius.description: Визначає радіус тіні.
+
+animated_java.dialog.display_entity.shadow_strength.title: Інтенсивність тіні
+animated_java.dialog.display_entity.shadow_strength.description: Визначає інтенсивність тіні.
+
+animated_java.dialog.display_entity.override_brightness.title: Користувацька яскравість
+animated_java.dialog.display_entity.override_brightness.description: Встановлює користувацьку яскравість нода.
+
+animated_java.dialog.display_entity.brightness_override.title: Яскравість
+animated_java.dialog.display_entity.brightness_override.description: Визначає яскравість нода. Значення має бути від 0 до 15.
+
+animated_java.dialog.display_entity.use_custom_brightness.title: Використовувати користувацьку яскравість
+animated_java.dialog.display_entity.use_custom_brightness.description: Встановлює користувацьку яскравість нода.
+
+animated_java.dialog.display_entity.custom_brightness.title: Користувацька яскравість
+animated_java.dialog.display_entity.custom_brightness.description: Визначає яскравість нода. Значення має бути від 0 до 15.
+
+animated_java.dialog.display_entity.enchanted.title: Зачарований
+animated_java.dialog.display_entity.enchanted.description: Чи вмикати ефект зачарованості нода.
+
+animated_java.dialog.display_entity.invisible.title: Невидимість
+animated_java.dialog.display_entity.invisible.description: Чи робити нод невидимим у грі.
+
+animated_java.dialog.display_entity.billboard.title: Білборд
+animated_java.dialog.display_entity.billboard.description: |-
+  Налаштовує обертання у бік погляду гравця під час рендерингу.
+  - **Фіксований**: Вертикальна та горизонтальна осі зафіксовані.
+  - **Вертикальний**: Повертається по вертикалі.
+  - **Горизонтальний**: Повертається по горизонталі.
+  - **По центру**: Повертається по центру.
+animated_java.dialog.display_entity.billboard.options.fixed: Фіксований
+animated_java.dialog.display_entity.billboard.options.vertical: Вертикальний
+animated_java.dialog.display_entity.billboard.options.horizontal: Горизонтальний
+animated_java.dialog.display_entity.billboard.options.center: По центру
+
+## Locator Config Dialog
+animated_java.dialog.locator_config.title: Налаштування локатора
+
+animated_java.dialog.locator_config.plugin_mode_warning: |-
+  Режим плагіна увімкнено! Локатори не мають налаштувань у режимі плагіна.
+  Замість цього скористайтеся Plugin API, щоб додати функціонал до ваших локаторів.
+  Детальніше про Plugin API можна дізнатися в офіційній документації Plugin API.
+
+animated_java.dialog.locator_config.use_entity.title: Використовувати сутність
+animated_java.dialog.locator_config.use_entity.description: |-
+  Якщо увімкнено, локатор створить і використовуватиме сутність замість координат у грі.
+
+animated_java.dialog.locator_config.entity_type.title: Тип сутності
+animated_java.dialog.locator_config.entity_type.description: Тип сутності, який буде прив’язаний до локатора.
+animated_java.dialog.locator_config.entity_type.error.empty: Тип сутності не може бути порожнім!
+animated_java.dialog.locator_config.entity_type.warning.invalid: Вибраний тип сутності не існує в Minecraft {0}
+
+animated_java.dialog.locator_config.sync_passenger_rotation.title: Синхронізувати поворот пасажирів
+animated_java.dialog.locator_config.sync_passenger_rotation.description: Автоматично синхронізує поворот пасажирів локатора.
+
+animated_java.dialog.locator_config.on_summon_function.title: Функція при виклику
+animated_java.dialog.locator_config.on_summon_function.description: |-
+  Команди, що виконуються `as` (від імені) кореневої сутності та `at` (на місці) локатора під час виклику.
+
+  Підтримує синтаксис [MC-Build](https://mcbuild.dev).
+animated_java.dialog.locator_config.on_summon_function.description_with_use_entity: |-
+  Команди, що виконуються `as` (від імені) кореневої сутності та `at` (на місці) сутності локатора під час виклику.
+
+  Підтримує синтаксис [MC-Build](https://mcbuild.dev).
+
+animated_java.dialog.locator_config.on_remove_function.title: Функція при видаленні
+animated_java.dialog.locator_config.on_remove_function.description: |-
+  Команди, що виконуються `as` (від імені) кореневого об’єкта та `at` (на місці) локатора під час видалення.
+
+  Підтримує синтаксис [MC-Build](https://mcbuild.dev).
+animated_java.dialog.locator_config.on_remove_function.description_with_use_entity: |-
+  Команди, що виконуються `as` (від імені) кореневого об’єкта та `at` (на місці) об’єкта-локатора під час видалення.
+
+  Підтримує синтаксис [MC-Build](https://mcbuild.dev).
+
+animated_java.dialog.locator_config.on_tick_function.title: Тік функція
+animated_java.dialog.locator_config.on_tick_function.description: |-
+  Команди, що виконуються `at` (на місці) локатора щотика.
+
+  Підтримує синтаксис [MC-Build](https://mcbuild.dev).
+animated_java.dialog.locator_config.on_tick_function.description_with_use_entity: |-
+  Команди, що виконуються `at` (на місці) сутності локатора щотика.
+
+  Підтримує синтаксис [MC-Build](https://mcbuild.dev).
+
+## Text Display Config Dialog
+animated_java.dialog.text_display_config.title: Налаштування текст-дисплея
+
+animated_java.dialog.bone_config.vanilla_item_model.title: Ванільна модель предмета
+animated_java.dialog.bone_config.vanilla_item_model.description: |-
+  Якщо предмет обрано, кістка відображатиметься як звичайний предмет.
+  Це перезапише існуючі куби кістки.
+
+animated_java.dialog.text_display_config.use_nbt.title: Використовувати NBT
+animated_java.dialog.text_display_config.use_nbt.description: Використовує NBT для налаштування текст-дисплей сутності замість налаштувань.
+animated_java.dialog.text_display_config.use_nbt.use_nbt_warning: Використання NBT замінить усі інші налаштування, і будь-які зміни не відображатимуться в редакторі. Використовуйте лише за потреби!
+
+animated_java.dialog.text_display_config.inherit_settings.title: Успадкувати налаштування
+animated_java.dialog.text_display_config.inherit_settings.description: Успадковує налаштування від батьківської сутності текст-дисплея.
+
+animated_java.dialog.text_display_config.glowing.title: Свічення
+animated_java.dialog.text_display_config.glowing.description: Вмикає підсвічування тексту в грі.
+
+animated_java.dialog.text_display_config.override_glow_color.title: Користувацький колір свічення
+animated_java.dialog.text_display_config.override_glow_color.description: Вмикає користувацький колір свічення в грі.
+
+animated_java.dialog.text_display_config.glow_color.title: Колір свічення
+animated_java.dialog.text_display_config.glow_color.description: Колір свічення текст-дисплей сутності.
+
+animated_java.dialog.text_display_config.shadow_radius.title: Радіус тіні
+animated_java.dialog.text_display_config.shadow_radius.description: Визначає радіус тіні.
+
+animated_java.dialog.text_display_config.shadow_strength.title: Інтенсивність тіні
+animated_java.dialog.text_display_config.shadow_strength.description: Визначає інтенсивність тіні.
+
+animated_java.dialog.text_display_config.override_brightness.title: Користувацька яскравість
+animated_java.dialog.text_display_config.override_brightness.description: Вмикає користувацьку яскравість.
+
+animated_java.dialog.text_display_config.brightness_override.title: Яскравість
+animated_java.dialog.text_display_config.brightness_override.description: Яскравість текст-дисплей сутності. Значення має бути від 0 до 15.
+
+animated_java.dialog.text_display_config.use_custom_brightness.title: Використовувати користувацьку яскравість
+animated_java.dialog.text_display_config.use_custom_brightness.description: Вмикає власну яскравість для кістки.
+
+animated_java.dialog.text_display_config.custom_brightness.title: Користувацька яскравість
+animated_java.dialog.text_display_config.custom_brightness.description: Використовує користувацьку яскравість текст-дисплей сутності. Значення має бути від 0 до 15.
+
+animated_java.dialog.text_display_config.invisible.title: Невидимість
+animated_java.dialog.text_display_config.invisible.description: Чи слід увімкнути відображення тексту сутності дисплея в грі.
+
+animated_java.dialog.text_display_config.nbt.title: NBT
+animated_java.dialog.text_display_config.nbt.description: NBT, що застосовується до текст-дисплей сутності.
+
+## Block Display Config Dialog
+animated_java.dialog.vanilla_block_display_config.title: Налаштування блок-дисплея
+animated_java.dialog.vanilla_block_display.custom_name.title: Назва
+animated_java.dialog.vanilla_block_display.custom_name.description: Користувацька назва блок-дисплея.
+animated_java.dialog.vanilla_block_display.custom_name.invalid_json.error: |-
+  Неправильний текст JSON!
+  {0}
+
+animated_java.dialog.vanilla_block_display.custom_name_visible.title: Видимість імені
+animated_java.dialog.vanilla_block_display.custom_name_visible.description: Чи вмикати відображення імені.
+
+## Item Display Config Dialog
+animated_java.dialog.vanilla_item_display_config.title: Налаштування предмет-дисплея
+animated_java.dialog.vanilla_item_display.custom_name.title: Назва
+animated_java.dialog.vanilla_item_display.custom_name.description: Користувацьке назва предмет-дисплея.
+animated_java.dialog.vanilla_item_display.custom_name.invalid_json.error: |-
+  Неправильний текст JSON!
+  {0}
+
+animated_java.dialog.vanilla_item_display.custom_name_visible.title: Видимість імені
+animated_java.dialog.vanilla_item_display.custom_name_visible.description: Чи слід увімкнути постійну видимість імені.
+
+## Variant Config Dialog
+animated_java.dialog.variant_config.title: Налаштування варіантів
+
+animated_java.dialog.variant_config.variant_display_name: Назва для відображення
+animated_java.dialog.variant_config.variant_display_name.description: Використовується в редакторі та в повідомленнях про помилки.
+
+animated_java.dialog.variant_config.generate_name_from_display_name: Створити назву на основі назви для відображення
+animated_java.dialog.variant_config.generate_name_from_display_name.description: Автоматично генерує назва на основі назви для відображення
+
+animated_java.dialog.variant_config.variant_name: Назва
+animated_java.dialog.variant_config.variant_name.description: Використовується в датапаку та ресурспаку.
+
+animated_java.dialog.variant_config.texture_map.title: Текстурна карта
+animated_java.dialog.variant_config.texture_map.description: Карта текстур, які будуть замінені при застосуванні цього варіанту.
+animated_java.dialog.variant_config.texture_map.create_new_mapping: Створити нове зіставлення
+animated_java.dialog.variant_config.texture_map.no_mappings: У цього варіанту немає замінних текстур.
+
+animated_java.dialog.variant_config.bone_lists.description: |-
+  Вкажіть ноди, які мають бути змінені при застосуванні цього варіанту.
+
+  Елементи, зазначені у списку, будуть змінені при застосуванні цього варіанту.
+
+  Ноди, яких немає у списку, залишаться недоторканими.
+animated_java.dialog.variant_config.excluded_nodes.title: Виключені ноди
+animated_java.dialog.variant_config.excluded_nodes.description: Список нодів, які варіант повинен ігнорувати. Ці ноди залишаться недоторканими.
+animated_java.dialog.variant_config.included_nodes.title: Увімкнені ноди
+animated_java.dialog.variant_config.included_nodes.description: Список нодів, які варіант повинен змінити. Змінюватимуться лише ці ноди.
+animated_java.dialog.variant_config.swap_columns_button.tooltip: Поміняти місцями
+
+## Old AJModel Loader Dialog
+animated_java.action.upgrade_old_aj_model_loader.name: Оновити .ajmodel
+animated_java.dialog.upgrade_old_aj_model_loader.title: Оновити .ajmodel
+animated_java.action.upgrade_old_aj_model_loader.select_file: Вибрати .ajmodel файл
+animated_java.action.upgrade_old_aj_model_loader.body: Оновити свої застарілі файли .ajmodel до нового формату .ajblueprint.
+animated_java.action.upgrade_old_aj_model_loader.button: Виберіть файл .ajmodel для оновлення
+
+## Animation Properties Dialog
+animated_java.dialog.animation_properties.title: Властивості анімації ({0})
+
+animated_java.dialog.animation_properties.animation_name.title: Назва анімації
+animated_java.dialog.animation_properties.animation_name.description: Використовується в датапаку.
+
+animated_java.dialog.animation_properties.loop_mode.title: Режим циклу
+animated_java.dialog.animation_properties.loop_mode.description: |-
+  - Одноразовий: анімація відтвориться один раз, а потім повернеться до першого кадру.
+  - Затримка: анімація відтвориться один раз і залишиться на останньому кадрі.
+  - Цикл: анімація буде повторюватися нескінченно.
+animated_java.dialog.animation_properties.loop_mode.options.once: Одноразовий
+animated_java.dialog.animation_properties.loop_mode.options.hold: Затримка
+animated_java.dialog.animation_properties.loop_mode.options.loop: Цикл
+animated_java.dialog.animation_properties.animation_name.error.empty: Назва анімації не може бути порожньою!
+animated_java.dialog.animation_properties.animation_name.error.invalid_characters: Назва анімації містить недопустимі символи! Назви анімацій можуть містити лише літери, цифри, підкреслення та крапки.
+
+animated_java.dialog.animation_properties.loop_delay.title: Затримка циклу
+animated_java.dialog.animation_properties.loop_delay.description: |-
+  Затримка в тіках перед повторним запуском анімації в режимі "Цикл".
+
+  Тобто значення 20 означає, що анімація зупиниться на 1 секунду перед повторним запуском.
+
+animated_java.dialog.animation_properties.bone_lists.description: |-
+  Вкажіть ноди, які має змінити анімація.
+
+  Ноди, зазначені у списку, будуть змінені за допомогою анімації.
+
+  Ноди, яких немає у списку, залишаться недоторканими.
+animated_java.dialog.animation_properties.excluded_nodes.title: Виключені ноди
+animated_java.dialog.animation_properties.excluded_nodes.description: Список нодів, які анімація ігноруватиме. Ці ноди залишаться незмінними.
+animated_java.dialog.animation_properties.included_nodes.title: Увімкнені ноди
+animated_java.dialog.animation_properties.included_nodes.description: Список нодів, які анімація змінюватиме. Тільки ці ноди будуть змінені.
+animated_java.dialog.animation_properties.swap_columns_button.tooltip: Поміняти місцями
+
+## Export Progress Dialog
+animated_java.dialog.export_progress.title: Експортування...
+
+## Blueprint Loading Dialog
+animated_java.dialog.blueprint_loading.title: Завантаження креслення...
+
+### Panels
+
+## Variants Panel
+animated_java.panel.variants.title: Варіанти
+animated_java.panel.variants.tool.create_new_variant: Створити новий варіант
+animated_java.panel.variants.tool.edit_variant: Налаштувати варіант
+animated_java.panel.variants.tool.duplicate_selected_variant: Дублювати вибраний варіант
+animated_java.panel.variants.tool.delete_selected_variant: Видалити вибраний варіант
+animated_java.panel.variants.tool.variant_visible: Варіант обрано
+animated_java.panel.variants.tool.variant_not_visible: Варіант не обрано
+animated_java.panel.variants.tool.cannot_delete_default_variant: Не можна видалити варіант за замовчуванням!
+animated_java.panel.variants.tool.cannot_edit_default_variant: Не вдалося змінити варіант за замовчуванням!
+
+animated_java.action.variants.create: Створити варіант
+animated_java.action.variants.duplicate: Дублювати варіант
+animated_java.action.variants.open_config: Відкрити налаштування варіанту
+animated_java.action.variants.delete: Видалити варіант
+
+### Animator
+
+## Properties
+animated_java.animation.excluded_nodes: Виключені ноди
+animated_java.animation.invert_excluded_nodes: Інвертувати виключені ноди
+
+## Timeline
+animated_java.effect_animator.timeline.variant: Варіант
+animated_java.effect_animator.timeline.function: Функція
+
+## Keyframes
+animated_java.effect_animator.keyframe_data_point.variant: Варіант
+animated_java.effect_animator.keyframe_data_point.function: Функція
+animated_java.effect_animator.keyframe_data_point.execute_condition: Умова виконання (Execute)
+animated_java.effect_animator.keyframe_data_point.repeat: Повтор
+animated_java.effect_animator.keyframe_data_point.repeat_frequency: Інтервал повтору
+
+# Keyframe Panel
+animated_java.panel.keyframe.keyframe_title: Ключовий кадр ({0})
+
+animated_java.panel.keyframe.variant.title: Варіант
+animated_java.panel.keyframe.variant.description: Варіант, що застосовується до ключового кадру.
+
+animated_java.panel.keyframe.function.title: Функція
+animated_java.panel.keyframe.function.description: |-
+  Команди, що виконуються при досягненні ключового кадру.
+
+  Сприймайте це поле як файл `.mcfunction`.
+
+  Підтримує синтаксис [MC-Build](https://mcbuild.dev).
+animated_java.panel.keyframe.execute_condition.title: Умова виконання (Execute)
+animated_java.panel.keyframe.execute_condition.description: |-
+  Умова, за якої буде виконано ключовий кадр.
+
+  Сприймайте це поле як файл `.mcfunction`.
+
+  Тобто `if score @s myScore дорівнює 1..`
+
+animated_java.panel.keyframe.repeat.title: Повтор
+animated_java.panel.keyframe.repeat.description: |-
+  Якщо ця опція увімкнена, команди в цьому ключовому кадрі будуть повторюватися з заданим інтервалом.
+animated_java.panel.keyframe.repeat_frequency.title: Інтервал
+animated_java.panel.keyframe.repeat_frequency.description: |-
+  Кількість тіків між повторенням команди.
+
+  Поставте 1, щоб запускати з кожним тіком анімації.
+
+animated_java.panel.keyframe.easing_type.title: Тип плавності
+animated_java.panel.keyframe.easing_type.description: Тип плавності, який застосовується до ключового кадру.
+animated_java.panel.keyframe.easing_type.options.linear: Лінійне
+animated_java.panel.keyframe.easing_type.options.sine: Синусоїдальне
+animated_java.panel.keyframe.easing_type.options.quad: Квадратичне
+animated_java.panel.keyframe.easing_type.options.cubic: Кубічне
+animated_java.panel.keyframe.easing_type.options.quart: Біквадратичне
+animated_java.panel.keyframe.easing_type.options.quint: Бікубічне
+animated_java.panel.keyframe.easing_type.options.expo: Експоненціальне
+animated_java.panel.keyframe.easing_type.options.circ: Циркулярне
+animated_java.panel.keyframe.easing_type.options.elastic: Еластичне
+animated_java.panel.keyframe.easing_type.options.back: Відтягування
+animated_java.panel.keyframe.easing_type.options.bounce: Пружинисте
+
+animated_java.panel.keyframe.easing_mode.title: Режим плавності
+animated_java.panel.keyframe.easing_mode.description: Режим застосування плавності до ключового кадру.
+animated_java.panel.keyframe.easing_mode.options.in: На початку
+animated_java.panel.keyframe.easing_mode.options.out: В кінці
+animated_java.panel.keyframe.easing_mode.options.inout: На початку та в кінці
+
+animated_java.panel.keyframe.easing_args.title: Аргументи плавності
+animated_java.panel.keyframe.easing_args.description: Аргументи, що застосовуються до функції плавності.
+animated_java.panel.keyframe.easing_args.easing_arg.elastic.title: Еластичність
+animated_java.panel.keyframe.easing_args.easing_arg.elastic.description: Еластичність функції плавності.
+animated_java.panel.keyframe.easing_args.easing_arg.back.title: Амплітуда відтягування
+animated_java.panel.keyframe.easing_args.easing_arg.back.description: Визначає ступінь амплітуди відтягування функції плавності.
+animated_java.panel.keyframe.easing_args.easing_arg.bounce.title: Пружність
+animated_java.panel.keyframe.easing_args.easing_arg.bounce.description: Визначає ступінь пружності функції плавності.
+
+animated_java.panel.keyframe.nonlinear_interpolation: |-
+  Розширені налаштування згладжування вимкнені.
+  Змініть режим інтерполяції ключового кадру на лінійний, щоб увімкнути цю функцію.
+
+# Text Display Panel
+animated_java.panel.text_display.title: Текст-дисплей
+
+animated_java.tool.text_display.line_width.title: Ширина рядка
+animated_java.tool.text_display.line_width.description: Ширина текст-дисплея в пікселях.
+
+animated_java.tool.text_display.background_color.title: Колір фону
+animated_java.tool.text_display.background_color.description: Колір фону текст-дисплея.
+
+animated_java.tool.text_display.text_shadow.title: Тінь текста
+animated_java.tool.text_display.text_shadow.description: Вмикає відображення тіні тексту.
+
+animated_java.tool.text_display.text_alignment.title: Вирівнювання тексту
+animated_java.tool.text_display.text_alignment.description: Визначає вирівнювання тексту.
+animated_java.tool.text_display.text_alignment.options.left: По лівому краю
+animated_java.tool.text_display.text_alignment.options.center: По центру
+animated_java.tool.text_display.text_alignment.options.right: По правому краю
+
+animated_java.tool.text_display.see_through.title: Прозорість
+animated_java.tool.text_display.see_through.description: Визначає, чи буде текст видно крізь блоки.
+
+animated_java.tool.text_display.copy_text.title: Копіювати експортований текстовий компонент
+animated_java.tool.text_display.copy_text.description: Копіює експортований текстовий компонент у буфер обміну.
+animated_java.tool.text_display.copy_text.copied: Текст скопійовано в буфер обміну!
+
+# Item Display Panel
+animated_java.panel.vanilla_item_display.title: Предмет-дисплей
+animated_java.panel.vanilla_item_display.description: Предмет, який буде відображатися.
+animated_java.tool.item_display.item_display.title: Режим відображення предмета
+animated_java.tool.item_display.item_display.description: Визначає, яка трансформація моделі буде застосована до предмета (як зазначено в полі «display» JSON-файлу моделі).
+animated_java.tool.item_display.item_display.options.none: Ні
+animated_java.tool.item_display.item_display.options.thirdperson_lefthand: Від третьої особи (ліва рука)
+animated_java.tool.item_display.item_display.options.thirdperson_righthand: Від третьої особи (права рука)
+animated_java.tool.item_display.item_display.options.firstperson_lefthand: Від першої особи (ліва рука)
+animated_java.tool.item_display.item_display.options.firstperson_righthand: Від першої особи (права рука)
+animated_java.tool.item_display.item_display.options.head: Голова
+animated_java.tool.item_display.item_display.options.gui: Інтерфейс (GUI)
+animated_java.tool.item_display.item_display.options.ground: На землі
+animated_java.tool.item_display.item_display.options.fixed: Фіксовано
+
+# Block Display Panel
+animated_java.panel.vanilla_block_display.title: Блок, що відображається
+animated_java.panel.vanilla_block_display.description: Блок, який буде відображатися. Підтримуються стани блоків!
+
+### Custom Elements
+## Item Display
+animated_java.vanilla_item_display.title: Предмет-дисплей
+
+## Block Display
+
+### Misc
+
+# Blueprint Setting Errors - Failed to Export Message Box
+animated_java.misc.failed_to_export.title: Не вдалося експортувати
+animated_java.misc.failed_to_export.custom_models.message: Ви вимкнули експорт ресурспаку, але у вашому проєкті є користувацькі моделі! Будь ласка, увімкніть експорт ресурспаку або видаліть моделі перед експортом.
+animated_java.misc.failed_to_export.blueprint_settings.message: У налаштуваннях креслення виявлено помилки! Будь ласка, виправте їх перед експортом.
+animated_java.misc.failed_to_export.blueprint_settings.error_item: 'Виявлено помилку з {0}:'
+animated_java.misc.failed_to_export.button: ОК
+animated_java.misc.failed_to_export.invalid_rotation.message: |-
+  Деякі куби у вашій моделі мають неправильні кути повороту!
+
+  Куби повинні мати кут повороту -45, -22,5, 0, 22,5 або 45 градусів і можуть бути повернуті лише навколо однієї осі, якщо вибрано версії Minecraft нижче 1.21.6.
+
+  Якщо ви хочете повернути куб точніше або на кількох осях, перемістіть куб у кістку і повертайте її замість куба.
+
+  Усі неприпустимі куби підсвічені червоним. Будь ласка, виправте їх перед експортом.
+animated_java.misc.failed_to_export.invalid_rotation.message_post_1_21_6: |-
+  Деякі куби у вашій моделі мають неправильні кути повороту!
+
+  Куби повинні бути повернуті лише навколо однієї осі, якщо вибрано версії Minecraft вище 1.21.6.
+
+  Якщо ви хочете повернути куб точніше або на кількох осях, перемістіть куб у кістку і повертайте її замість куба.
+
+  Усі неприпустимі куби підсвічені червоним. Будь ласка, виправте їх перед експортом.
+animated_java.misc.failed_to_export.rig_has_textures_but_no_custom_models.message: |-
+  У вашій моделі є текстури, але немає користувацьких моделей (кубів), до яких їх можна застосувати!
+  Будь ласка, створіть куби та використовуйте ці текстури, або видаліть текстури перед експортом.
+animated_java.misc.failed_to_export.rig_has_custom_models_but_no_textures.message: |-
+  У вашій моделі є користувацькі моделі (куби), але немає текстур, які можна застосувати до них!
+  Будь ласка, додайте текстури до ваших кубів або видаліть їх перед експортом.
+
+animated_java.toast.invalid_rotations: |-
+  Неправильний поворот кубів!
+
+  Куби повинні мати поворот у -45, -22,5, 0, 22,5 або 45 градусів і можуть бути повернуті лише навколо однієї осі, якщо вибрано версії Minecraft нижче 1.21.6.
+
+  Усі неприпустимі куби підсвічені червоним.
+
+animated_java.toast.invalid_rotations_post_1_21_6: |-
+  Неправильний поворот кубів!
+
+  Куби можуть бути повернуті тільки навколо однієї осі при виборі версії Minecraft 1.21.6 і вище.
+
+  Усі неприпустимі куби підсвічені червоним.
+
+# Format Category
+animated_java.format_category.animated_java: Animated Java
+
+# Model Manager Warnings
+animated_java.block_model_manager.fluid_warning: Рідини не відображаються у блок-дисплеях.
+animated_java.block_model_manager.mob_head_warning: Голови мобів не відображаються у блок-дисплеях. Використовуйте предмет-дисплей.
+animated_java.block_model_manager.facing_warning: Стан «facing» не підтримується в блок-дисплеях.
+
+# Project Errors
+animated_java.error.blueprint_export_path_doesnt_exist.title: Шлях експорту креслення не існує.
+animated_java.error.blueprint_export_path_doesnt_exist.description: |-
+  Шлях експорту креслення '{0}' не існує!
+
+  Переконайтеся, що папка, в яку відбувається експорт, існує, і спробуйте ще раз.

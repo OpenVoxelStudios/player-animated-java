@@ -1,24 +1,25 @@
-import { toSmallCaps } from 'src/util/minecraftUtil'
+import { TextComponent, type TextElement } from 'book-and-quill'
+import { toSmallCaps } from '../../util/minecraftUtil'
 import { type IRenderedAnimation } from '../animationRenderer'
-import { JsonText, TextElement } from '../jsonText'
 import { type IRenderedVariant } from '../rigRenderer'
+import OBJECTIVES from './objectives'
 
 const TELLRAW_PREFIX = () =>
-	new JsonText([
+	new TextComponent([
 		{ text: '\n ', color: 'gray' },
 		{ text: toSmallCaps('Animated Java'), color: '#00aced' },
 		{
-			text: `\n (animated_java:${Project!.animated_java.export_namespace})`,
+			text: `\n (${Project!.animated_java.blueprint_id})`,
 			color: 'dark_gray',
 			italic: true,
 		},
 		'\n → ',
-	]).flatten()
+	]).optimized()
 
 const TELLRAW_SUFFIX = () => '\n'
 
 const TELLRAW_ERROR = (errorName: string, details: TextElement) =>
-	new JsonText([
+	new TextComponent([
 		{ text: '', color: 'red' },
 		TELLRAW_PREFIX(),
 		toSmallCaps('error') + ': ',
@@ -29,7 +30,7 @@ const TELLRAW_ERROR = (errorName: string, details: TextElement) =>
 	])
 
 const TELLRAW_WARNING = (warningName: string, details: TextElement) =>
-	new JsonText([
+	new TextComponent([
 		{ text: '', color: 'yellow' },
 		TELLRAW_PREFIX(),
 		toSmallCaps('warning') + ': ',
@@ -40,7 +41,7 @@ const TELLRAW_WARNING = (warningName: string, details: TextElement) =>
 	])
 
 const CREATE_TELLRAW_HELP_LINK = (url: string) =>
-	new JsonText([
+	new TextComponent([
 		'\n\n ',
 		!compareVersions('1.21.5', Project!.animated_java.target_minecraft_version)
 			? {
@@ -49,15 +50,15 @@ const CREATE_TELLRAW_HELP_LINK = (url: string) =>
 					underlined: true,
 					italic: true,
 					click_event: { action: 'open_url', url },
-			  }
+				}
 			: {
 					text: '▶ Learn More ◀',
 					color: 'blue',
 					underlined: true,
 					italic: true,
 					clickEvent: { action: 'open_url', value: url },
-			  },
-	]).flatten()
+				},
+	]).optimized()
 
 namespace TELLRAW {
 	export const RIG_OUTDATED = () =>
@@ -78,7 +79,7 @@ namespace TELLRAW {
 						},
 						color: 'aqua',
 						underlined: true,
-				  }
+					}
 				: {
 						text: toSmallCaps('Teleport to Instance'),
 						clickEvent: {
@@ -87,7 +88,7 @@ namespace TELLRAW {
 						},
 						color: 'aqua',
 						underlined: true,
-				  },
+					},
 			{ text: '\n ≡ ', color: 'white' },
 			!compareVersions('1.21.5', Project!.animated_java.target_minecraft_version)
 				? {
@@ -98,7 +99,7 @@ namespace TELLRAW {
 						},
 						color: 'aqua',
 						underlined: true,
-				  }
+					}
 				: {
 						text: toSmallCaps('Remove Instance'),
 						clickEvent: {
@@ -107,11 +108,11 @@ namespace TELLRAW {
 						},
 						color: 'aqua',
 						underlined: true,
-				  },
+					},
 		])
 
 	export const RIG_OUTDATED_TEXT_DISPLAY = () =>
-		new JsonText([
+		new TextComponent([
 			{ text: '⚠ This rig instance is outdated! ⚠', color: 'red' },
 			'\n It should be removed and re-summoned to ensure it functions correctly.',
 		])
@@ -120,7 +121,10 @@ namespace TELLRAW {
 			.replaceAll('\\n', '\\\\n')
 
 	export const FUNCTION_NOT_EXECUTED_AS_ROOT_ERROR = (functionPath: string, tag: string) => {
-		const hoverText = new JsonText([{ text: functionPath, color: 'yellow' }, '']).flatten()
+		const hoverText = new TextComponent([
+			{ text: functionPath, color: 'yellow' },
+			'',
+		]).optimized()
 
 		const exampleCommand = `/execute as @e[tag=${tag}] run function ${functionPath}`
 
@@ -130,12 +134,12 @@ namespace TELLRAW {
 						text: '[This Function]',
 						color: 'yellow',
 						hover_event: { action: 'show_text', value: hoverText },
-				  }
+					}
 				: {
 						text: '[This Function]',
 						color: 'yellow',
 						hoverEvent: { action: 'show_text', contents: hoverText },
-				  },
+					},
 			" must be executed as the rig's root entity.",
 			{
 				text: '\n\n ≡ ',
@@ -147,13 +151,13 @@ namespace TELLRAW {
 								color: 'aqua',
 								underlined: true,
 								click_event: { action: 'suggest_command', command: exampleCommand },
-						  }
+							}
 						: {
 								text: toSmallCaps('Show Example Command'),
 								color: 'aqua',
 								underlined: true,
 								clickEvent: { action: 'suggest_command', value: exampleCommand },
-						  },
+							},
 				],
 			},
 			CREATE_TELLRAW_HELP_LINK(
@@ -161,6 +165,38 @@ namespace TELLRAW {
 			),
 		])
 	}
+
+	export const FUNCTION_NOT_EXECUTED_AS_ENTITY_WITH_ID_SCORE = (functionPath: string) => {
+		const hoverText = new TextComponent([
+			{ text: functionPath, color: 'yellow' },
+			'',
+		]).optimized()
+
+		return TELLRAW_ERROR('Function Not Executed as Entity with ID Score', [
+			!compareVersions('1.21.5', Project!.animated_java.target_minecraft_version)
+				? {
+						text: '[This Function]',
+						color: 'yellow',
+						hover_event: { action: 'show_text', value: hoverText },
+					}
+				: {
+						text: '[This Function]',
+						color: 'yellow',
+						hoverEvent: { action: 'show_text', contents: hoverText },
+					},
+			' must be executed as an entity with a ',
+			{ text: `${OBJECTIVES.ID()}`, color: 'yellow' },
+			' score.',
+		])
+	}
+
+	export const ROOT_COMMAND_FAILED_TO_EXECUTE = () =>
+		TELLRAW_ERROR('Failed to Execute Command as Root Entity', [
+			'Failed to execute command ',
+			{ nbt: 'args.command', storage: 'animated_java:temp', color: 'yellow' },
+			" as the rig instance's root entity.",
+			'\n Please ensure the command is valid.',
+		])
 
 	export const INVALID_VARIANT = (variants: Record<string, IRenderedVariant>) =>
 		TELLRAW_ERROR('Invalid Variant', [
@@ -171,12 +207,12 @@ namespace TELLRAW {
 			{ text: ' ≡ ', color: 'white' },
 			{ text: 'Available Variants:', color: 'green' },
 			...Object.values(variants).map(variant =>
-				new JsonText([
+				new TextComponent([
 					{ text: '\n ', color: 'gray' },
 					'\\s\\s\\s',
 					' ● ',
 					{ text: variant.name, color: 'yellow' },
-				]).flatten()
+				]).optimized()
 			),
 		])
 
@@ -195,13 +231,25 @@ namespace TELLRAW {
 			{ text: ' ≡ ', color: 'white' },
 			{ text: 'Available Animations:', color: 'green' },
 			...animations.map(anim =>
-				new JsonText([
+				new TextComponent([
 					{ text: '\n ', color: 'gray' },
 					'\\s\\s\\s',
 					' ● ',
 					{ text: anim.storage_name, color: 'yellow' },
-				]).flatten()
+				]).optimized()
 			),
+		])
+
+	export const FRAME_ARG_NO_RIG_FRAMES = () =>
+		TELLRAW_ERROR('Frame Argument Invalid - No Rig Animations', [
+			'This Blueprint has no animations to play, and therefore no frames to switch between.',
+			'\n Please ensure that the rig has animations, or avoid using the frame argument in your summon function.',
+		])
+
+	export const ANIMATION_ARG_NO_RIG_ANIMATIONS = () =>
+		TELLRAW_ERROR('Animation Argument Invalid - No Rig Animations', [
+			'This Blueprint has no animations to play.',
+			'\n Please ensure that the rig has animations, or avoid using the animation argument in your summon function.',
 		])
 
 	export const NO_VARIANTS = () =>
@@ -219,11 +267,11 @@ namespace TELLRAW {
 		])
 
 	export const UNINSTALL = () =>
-		new JsonText([
+		new TextComponent([
 			TELLRAW_PREFIX(),
 			[
 				{ text: 'Successfully uninstalled ', color: 'green' },
-				{ text: Project!.animated_java.export_namespace, color: 'yellow' },
+				{ text: Project!.animated_java.blueprint_id, color: 'yellow' },
 				{ text: '!' },
 				{
 					text: '\n If you have exported multiple times, you may have to remove objectives from previous exports manually, as Animated Java only knows about the objectives from the most recent export.',
@@ -259,12 +307,12 @@ namespace TELLRAW {
 			" is enabled in the locator's config.",
 		])
 
-	export const LOCATOR_COMMAND_FAILED_TO_EXECUTE = () =>
+	export const LOCATOR_COMMAND_FAILED_TO_EXECUTE = (name?: TextElement) =>
 		TELLRAW_ERROR('Failed to Execute Command as Locator', [
 			'Failed to execute command ',
 			{ nbt: 'args.command', storage: 'animated_java:temp', color: 'yellow' },
 			' as Locator ',
-			{ nbt: 'args.name', storage: 'animated_java:temp', color: 'aqua' },
+			name ?? { nbt: 'args.name', storage: 'animated_java:temp', color: 'aqua' },
 			'.',
 			'\n Please ensure the command is valid.',
 		])
@@ -277,12 +325,30 @@ namespace TELLRAW {
 			'\n Please ensure that its name is spelled correctly.',
 		])
 
-	export const CAMERA_COMMAND_FAILED_TO_EXECUTE = () =>
+	export const CAMERA_COMMAND_FAILED_TO_EXECUTE = (name?: TextElement) =>
 		TELLRAW_ERROR('Failed to Execute Command as Camera', [
 			'Failed to execute command ',
 			{ nbt: 'args.command', storage: 'animated_java:temp', color: 'yellow' },
 			' as Camera ',
+			name ?? { nbt: 'args.name', storage: 'animated_java:temp', color: 'aqua' },
+			'.',
+			'\n Please ensure the command is valid.',
+		])
+
+	export const NODE_ENTITY_NOT_FOUND = () =>
+		TELLRAW_ERROR('Node Not Found', [
+			'Node ',
 			{ nbt: 'args.name', storage: 'animated_java:temp', color: 'aqua' },
+			' does not exist!',
+			'\n Please ensure that its name is spelled correctly.',
+		])
+
+	export const NODE_COMMAND_FAILED_TO_EXECUTE = (name?: TextElement) =>
+		TELLRAW_ERROR('Failed to Execute Command as Node', [
+			'Failed to execute command ',
+			{ nbt: 'args.command', storage: 'animated_java:temp', color: 'yellow' },
+			' as Node ',
+			name ?? { nbt: 'args.name', storage: 'animated_java:temp', color: 'aqua' },
 			'.',
 			'\n Please ensure the command is valid.',
 		])
