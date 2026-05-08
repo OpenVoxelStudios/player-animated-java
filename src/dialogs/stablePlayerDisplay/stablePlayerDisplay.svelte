@@ -1,8 +1,10 @@
+<script lang="ts" module>
+	import { type Observable } from 'svelte-observable-store'
+	import { localize as translate } from '../../util/lang'
+</script>
+
 <script lang="ts">
-	import { translate } from '../util/translation'
-	import type { Valuable } from '../util/stores'
-	
-	export let modelType: Valuable<string>
+	export let modelType: Observable<string>
 </script>
 
 <div class="dialog-wrapper">
@@ -10,8 +12,8 @@
 		<label class="name_space_left" for="model-type-select">
 			{translate('dialog.stable_player_display.model_type.title')}
 		</label>
-		<select 
-			id="model-type-select" 
+		<select
+			id="model-type-select"
 			bind:value={$modelType}
 			class="dark_bordered half form_input"
 		>
@@ -34,7 +36,7 @@
 	.dialog-wrapper {
 		padding: 10px;
 	}
-	
+
 	.dialog_bar.form_bar {
 		margin-bottom: 10px;
 	}

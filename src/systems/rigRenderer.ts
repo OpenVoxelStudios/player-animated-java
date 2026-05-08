@@ -213,8 +213,8 @@ export interface IRenderedRig {
 	target_minecraft_version: string
 }
 
-function renderCube(cube: Cube, rig: IRenderedRig, model: IRenderedModel) {
-	if (!cube.export) return
+function renderCube(cube: Cube, rig: IRenderedRig, model: IRenderedModel): boolean {
+	if (!cube.export) return false
 
 	const element = {} as IRenderedElement
 
@@ -292,22 +292,7 @@ function renderCube(cube: Cube, rig: IRenderedRig, model: IRenderedModel) {
 		element.faces[face] = renderedFace
 	}
 
-	// Check if this is a stable player display cube (allow cubes without textures)
-	function isPartOfStablePlayerDisplay(cube: Cube): boolean {
-		let current = cube.parent
-		while (current instanceof Group) {
-			if (
-				current.name === 'stable_player_display' ||
-				current.name === 'split_stable_player_display'
-			) {
-				return true
-			}
-			current = current.parent
-		}
-		return false
-	}
-
-	if (Object.keys(element.faces).length === 0 && !isPartOfStablePlayerDisplay(cube)) return
+	if (Object.keys(element.faces).length === 0) return false
 
 	// @ts-expect-error - Broken BB types
 	if (cube.light_emission) {
@@ -317,6 +302,7 @@ function renderCube(cube: Cube, rig: IRenderedRig, model: IRenderedModel) {
 
 	model.elements ??= []
 	model.elements.push(element)
+	return true
 }
 
 const TEXTURE_RESOURCE_LOCATION_CACHE = new Map<string, IMinecraftResourceLocation>()
@@ -456,8 +442,9 @@ function renderGroup(
 				break
 			}
 			case node instanceof Cube: {
-				renderCube(node, rig, groupModel.model!)
-				rig.includes_custom_models = true
+				if (renderCube(node, rig, groupModel.model!)) {
+					rig.includes_custom_models = true
+				}
 				break
 			}
 			default:
@@ -465,18 +452,29 @@ function renderGroup(
 		}
 	}
 
-	// Export a struct instead of a bone if no elements are present
+	const isSpdBone = SPD_PART_NAMES.has(group.name) && groupHasSpdAncestor(group)
+
 	if (!groupModel.model?.elements || groupModel.model.elements.length === 0) {
-		delete defaultVariant.models[group.uuid]
-		const struct: IRenderedNodes['Struct'] = {
-			type: 'struct',
-			name: group.name,
-			storage_name: sanitizeStorageKey(group.name),
-			uuid: group.uuid,
-			parent: parentId,
-			default_transform: {} as INodeTransform,
+		if (!isSpdBone) {
+			delete defaultVariant.models[group.uuid]
+			const struct: IRenderedNodes['Struct'] = {
+				type: 'struct',
+				name: group.name,
+				storage_name: sanitizeStorageKey(group.name),
+				uuid: group.uuid,
+				parent: parentId,
+				default_transform: {} as INodeTransform,
+			}
+			rig.nodes[group.uuid] = struct
+			return
 		}
-		rig.nodes[group.uuid] = struct
+		groupModel.model = {
+			parent: 'minecraft:item/generated',
+			textures: {},
+		}
+		renderedBone.base_scale = 1
+		rig.nodes[group.uuid] = renderedBone
+		rig.includes_custom_models = true
 		return
 	}
 
@@ -498,6 +496,34 @@ function renderGroup(
 
 	renderedBone.base_scale = 1 / scale
 	rig.nodes[group.uuid] = renderedBone
+}
+
+const SPD_PART_NAMES = new Set([
+	'head',
+	'right_arm',
+	'left_arm',
+	'torso',
+	'right_leg',
+	'left_leg',
+	'right_forearm',
+	'left_forearm',
+	'waist',
+	'lower_right_leg',
+	'lower_left_leg',
+])
+
+function groupHasSpdAncestor(group: Group): boolean {
+	let current = group.parent
+	while (current instanceof Group) {
+		if (
+			current.name === 'stable_player_display' ||
+			current.name === 'split_stable_player_display'
+		) {
+			return true
+		}
+		current = current.parent
+	}
+	return false
 }
 
 function renderItemDisplay(display: VanillaItemDisplay, rig: IRenderedRig) {

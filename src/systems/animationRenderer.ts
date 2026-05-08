@@ -5,7 +5,7 @@ import {
 	PROGRESS_DESCRIPTION,
 } from '../dialogs/exportProgress/exportProgress'
 import { BONE_INTERPOLATION_ENABLED } from '../mods/boneAnimatorMod'
-import { SPD_isRegular, SPD_OFFSETS } from '../outliner/stablePlayerDisplay'
+import { SPD_hasParent, SPD_isRegular, SPD_OFFSETS } from '../outliner/stablePlayerDisplay'
 import { TextDisplay } from '../outliner/textDisplay'
 import { VanillaBlockDisplay } from '../outliner/vanillaBlockDisplay'
 import { VanillaItemDisplay } from '../outliner/vanillaItemDisplay'
@@ -195,25 +195,17 @@ export function getFrame(
 					updatePreview(animation, time)
 				}
 
-				if (Object.keys(SPD_OFFSETS).includes(node.name)) {
-					matrix.elements[13] += SPD_OFFSETS[node.name as keyof typeof SPD_OFFSETS]
+				if (
+					Object.keys(SPD_OFFSETS).includes(node.name) &&
+					SPD_hasParent(node, nodeMap)
+				) {
+					transform.matrix.elements[13] +=
+						SPD_OFFSETS[node.name as keyof typeof SPD_OFFSETS]
 
 					if (node.name === 'torso') {
-						const spdInfo = SPD_isRegular(node, nodeMap)
-						const yOffset = spdInfo ? 0.75 : 0.375
+						const yOffset = SPD_isRegular(node, nodeMap) ? 0.75 : 0.375
 						const offsetMatrix = new THREE.Matrix4().makeTranslation(0, yOffset, 0)
-						matrix.multiply(offsetMatrix)
-					}
-				}
-
-				if (Object.keys(SPD_OFFSETS).includes(node.name)) {
-					matrix.elements[13] += SPD_OFFSETS[node.name as keyof typeof SPD_OFFSETS]
-
-					if (node.name === 'torso') {
-						const spdInfo = SPD_isRegular(node, nodeMap)
-						const yOffset = spdInfo ? 0.75 : 0.375
-						const offsetMatrix = new THREE.Matrix4().makeTranslation(0, yOffset, 0)
-						matrix.multiply(offsetMatrix)
+						transform.matrix.multiply(offsetMatrix)
 					}
 				}
 

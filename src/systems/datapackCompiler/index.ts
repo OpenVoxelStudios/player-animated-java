@@ -9,7 +9,7 @@ import {
 } from '../../dialogs/exportProgress/exportProgress'
 import { projectTargetVersionIsAtLeast } from '../../formats/blueprint'
 import { DisplayEntityConfig } from '../../nodeConfigs'
-import { SPD_isRegular, SPD_OFFSETS } from '../../outliner/stablePlayerDisplay'
+import { SPD_hasParent, SPD_isRegular, SPD_OFFSETS } from '../../outliner/stablePlayerDisplay'
 import { isFunctionTagPath } from '../../util/fileUtil'
 import {
 	DataPackTag,
@@ -130,23 +130,9 @@ async function generateRootEntityPassengers(version: string, rig: IRenderedRig) 
 					DisplayEntityConfig.fromJSON(node.configs.default).toNBT(passenger)
 				}
 
-				function hasStablePlayerDisplayParent(currentNode: AnyRenderedNode): boolean {
-					if (currentNode.parent === 'root' || !currentNode.parent) return false
-
-					const parentNode = rig.nodes[currentNode.parent]
-					if (!parentNode) return false
-
-					if (
-						parentNode.name === 'stable_player_display' ||
-						parentNode.name === 'split_stable_player_display'
-					)
-						return true
-					return hasStablePlayerDisplayParent(parentNode)
-				}
-
 				if (
 					Object.keys(SPD_OFFSETS).includes(node.name) &&
-					hasStablePlayerDisplayParent(node)
+					SPD_hasParent(node, rig.nodes)
 				) {
 					passenger.set(
 						'transformation',
@@ -177,8 +163,8 @@ async function generateRootEntityPassengers(version: string, rig: IRenderedRig) 
 					// passenger.set('view_range', new NbtFloat(0.6))
 				}
 
-				passenger.set('height', new NbtFloat(aj.bounding_box[1]))
-				passenger.set('width', new NbtFloat(aj.bounding_box[0]))
+				passenger.set('height', new NbtFloat(aj.render_box[1]))
+				passenger.set('width', new NbtFloat(aj.render_box[0]))
 				break
 			}
 			case 'text_display': {
@@ -605,6 +591,21 @@ const dataPackCompiler: DataPackCompiler = async ({
 		.map(() => '..')
 		.join('/')
 
+	const SPD_PART_NAMES = Object.keys(SPD_OFFSETS)
+	const defaultModels = rig.variants[Variant.getDefault().uuid].models
+	const spd_parts = Object.values(rig.nodes)
+		.filter(
+			(n): n is Extract<AnyRenderedNode, { type: 'bone' }> =>
+				n.type === 'bone' &&
+				SPD_PART_NAMES.includes(n.name) &&
+				SPD_hasParent(n, rig.nodes)
+		)
+		.map(n => ({
+			name: n.name,
+			storage_name: n.storage_name,
+			item_model: defaultModels[n.uuid]?.item_model ?? 'minecraft:air',
+		}))
+
 	const variables = {
 		relativePathToSrc,
 		blueprint_id: aj.blueprint_id,
@@ -613,6 +614,7 @@ const dataPackCompiler: DataPackCompiler = async ({
 		display_item: aj.display_item,
 		rig,
 		animations,
+		spd_parts,
 		export_version: Math.random().toString().substring(2, 10),
 		root_entity_passengers: await generateRootEntityPassengers(version, rig),
 		TAGS,
