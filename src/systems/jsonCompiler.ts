@@ -1,7 +1,9 @@
 //// <reference types="blockbench-types"/>
-/// <reference path="D:/github-repos/snavesutit/blockbench-types/types/index.d.ts"/>
+/// <reference path="/var/mnt/ssd2/repos/snavesutit/blockbench-types/types/index.d.ts"/>
 /// <reference path="../global.d.ts"/>
 
+import { TextComponent } from 'book-and-quill'
+import { getFsModule, PACKAGE } from '../constants'
 import type { IBlueprintDisplayEntityConfigJSON } from '../formats/blueprint'
 import { type defaultValues } from '../formats/blueprint/settings'
 import type { EasingKey } from '../util/easing'
@@ -9,7 +11,7 @@ import { resolvePath } from '../util/fileUtil'
 import { detectCircularReferences, mapObjEntries, scrubUndefined } from '../util/misc'
 import { Variant } from '../variants'
 import type { INodeTransform, IRenderedAnimation, IRenderedFrame } from './animationRenderer'
-import { JsonText } from './jsonText'
+import { IntentionalExportError } from './errors'
 import type {
 	AnyRenderedNode,
 	IRenderedModel,
@@ -18,42 +20,28 @@ import type {
 	IRenderedVariantModel,
 } from './rigRenderer'
 
-type ExportedNodetransform = Omit<
-	INodeTransform,
-	'type' | 'name' | 'uuid' | 'node' | 'matrix' | 'decomposed' | 'executeCondition'
-> & {
+type ExportedNodetransform = Omit<INodeTransform, 'matrix' | 'decomposed'> & {
 	matrix: number[]
 	decomposed: {
 		translation: ArrayVector3
 		left_rotation: ArrayVector4
 		scale: ArrayVector3
 	}
-	pos: ArrayVector3
-	rot: ArrayVector3
-	scale: ArrayVector3
-	execute_condition?: string
 }
 type ExportedRenderedNode = Omit<
 	AnyRenderedNode,
-	| 'node'
-	| 'parentNode'
-	| 'model'
-	| 'boundingBox'
-	| 'configs'
-	| 'baseScale'
-	| 'path_name'
-	| 'storage_name'
+	'default_transform' | 'bounding_box' | 'configs' | 'storage_name'
 > & {
 	default_transform: ExportedNodetransform
 	bounding_box?: { min: ArrayVector3; max: ArrayVector3 }
 	configs?: Record<string, IBlueprintDisplayEntityConfigJSON>
 }
-type ExportedAnimationFrame = Omit<IRenderedFrame, 'nodes' | 'node_transforms'> & {
+type ExportedAnimationFrame = Omit<IRenderedFrame, 'node_transforms'> & {
 	node_transforms: Record<string, ExportedNodetransform>
 }
 type ExportedBakedAnimation = Omit<
 	IRenderedAnimation,
-	'uuid' | 'frames' | 'modified_nodes' | 'path_name' | 'storage_name'
+	'uuid' | 'frames' | 'modified_nodes' | 'storage_name'
 > & {
 	frames: ExportedAnimationFrame[]
 	modified_nodes: string[]
@@ -98,16 +86,14 @@ interface ExportedDynamicAnimation {
 	animators: Record<string, ExportedAnimator>
 }
 interface ExportedTexture {
+	uuid: string
 	name: string
 	src: string
 }
-type ExportedVariantModel = Omit<
+type ExportedVariantModel = Pick<
 	IRenderedVariantModel,
-	'model_path' | 'resource_location' | 'item_model'
-> & {
-	model: IRenderedModel | null
-	custom_model_data: number
-}
+	'custom_model_data' | 'resource_location' | 'item_model'
+> & { model: IRenderedModel | null }
 type ExportedVariant = Omit<IRenderedVariant, 'models'> & {
 	/**
 	 * A map of bone UUID -> IRenderedVariantModel
@@ -116,16 +102,25 @@ type ExportedVariant = Omit<IRenderedVariant, 'models'> & {
 }
 
 export interface IExportedJSON {
+	format_version: '2.0.0'
+	exported_with: {
+		name: string
+		version: string
+	}
 	/**
 	 * The Blueprint's Settings
 	 */
 	settings: {
-		export_namespace: (typeof defaultValues)['export_namespace']
+		export_namespace: (typeof defaultValues)['blueprint_id']
+		target_minecraft_version: (typeof defaultValues)['target_minecraft_version']
+		display_item: (typeof defaultValues)['display_item']
 		bounding_box: (typeof defaultValues)['render_box']
 		// Resource Pack Settings
 		custom_model_data_offset: (typeof defaultValues)['custom_model_data_offset']
 		// Plugin Settings
 		baked_animations: (typeof defaultValues)['baked_animations']
+		interpolation_duration: (typeof defaultValues)['interpolation_duration']
+		teleportation_duration: (typeof defaultValues)['teleportation_duration']
 	}
 	textures: Record<string, ExportedTexture>
 	nodes: Record<string, ExportedRenderedNode>
@@ -137,7 +132,12 @@ export interface IExportedJSON {
 }
 
 function transferKey(obj: any, oldKey: string, newKey: string) {
-	obj[newKey] = obj[oldKey]
+	if (!Object.prototype.hasOwnProperty.call(obj, oldKey)) return
+	const value = obj[oldKey]
+	if (value === undefined) return
+	if (obj[newKey] === undefined) {
+		obj[newKey] = value
+	}
 	delete obj[oldKey]
 }
 
@@ -209,6 +209,8 @@ function serializeVariant(rig: IRenderedRig, variant: IRenderedVariant): Exporte
 			const json: ExportedVariantModel = {
 				model: model.model,
 				custom_model_data: model.custom_model_data,
+				resource_location: model.resource_location,
+				item_model: model.item_model,
 			}
 			return [uuid, json]
 		}),
@@ -230,22 +232,29 @@ export function exportJSON(options: {
 
 	function serializeTexture(texture: Texture): ExportedTexture {
 		return {
+			uuid: texture.uuid,
 			name: texture.name,
 			src: texture.getDataURL(),
 		}
 	}
 
 	const json: IExportedJSON = {
+		format_version: '2.0.0',
+		exported_with: {
+			name: PACKAGE.name,
+			version: PACKAGE.version,
+		},
 		settings: {
-			export_namespace: aj.export_namespace,
+			export_namespace: aj.blueprint_id,
+			target_minecraft_version: aj.target_minecraft_version,
+			display_item: aj.display_item,
 			bounding_box: aj.render_box,
 			custom_model_data_offset: aj.custom_model_data_offset,
 			baked_animations: aj.baked_animations,
+			interpolation_duration: aj.interpolation_duration,
+			teleportation_duration: aj.teleportation_duration,
 		},
-		textures: mapObjEntries(rig.textures, (_, texture) => [
-			texture.uuid,
-			serializeTexture(texture),
-		]),
+		textures: mapObjEntries(rig.textures, (id, texture) => [id, serializeTexture(texture)]),
 		nodes: mapObjEntries(rig.nodes, (uuid, node) => [uuid, serailizeRenderedNode(node)]),
 		variants: mapObjEntries(rig.variants, (uuid, variant) => [
 			uuid,
@@ -264,12 +273,15 @@ export function exportJSON(options: {
 				name: animation.name,
 				loop_mode: animation.loop,
 				duration: animation.length,
+				// @ts-expect-error - Broken BB types
 				excluded_nodes: animation.excluded_nodes.map(node => node.value),
 				animators: {},
 			}
 			for (const [uuid, animator] of Object.entries(animation.animators)) {
 				// Only include animators with keyframes
+				// @ts-expect-error - Broken BB types
 				if (animator.keyframes.length === 0) continue
+				// @ts-expect-error - Broken BB types
 				animJSON.animators[uuid] = animator.keyframes.map(serailizeKeyframe)
 			}
 			json.animations[animation.uuid] = animJSON
@@ -286,12 +298,24 @@ export function exportJSON(options: {
 	try {
 		exportPath = resolvePath(aj.json_file)
 	} catch (e) {
-		console.log(`Failed to resolve export path '${aj.json_file}'`)
-		console.error(e)
-		return
+		throw new IntentionalExportError(
+			`Failed to resolve export path <code>${aj.json_file}</code>: ${String(e)}`
+		)
 	}
 
-	fs.writeFileSync(exportPath, compileJSON(json).toString())
+	const { existsSync, mkdirSync, writeFileSync } = getFsModule()
+
+	try {
+		const dir = PathModule.dirname(exportPath)
+		if (dir && dir !== '.' && !existsSync(dir)) {
+			mkdirSync(dir, { recursive: true })
+		}
+		writeFileSync(exportPath, compileJSON(json).toString())
+	} catch (e: any) {
+		throw new IntentionalExportError(
+			`Failed to write JSON file <code>${exportPath}</code>: ${String(e)}`
+		)
+	}
 }
 
 function serailizeNodeTransform(node: INodeTransform): ExportedNodetransform {
@@ -325,23 +349,28 @@ function serailizeRenderedNode(node: AnyRenderedNode): ExportedRenderedNode {
 	transferKey(json, 'backgroundAlpha', 'background_alpha')
 
 	json.default_transform = serailizeNodeTransform(json.default_transform as INodeTransform)
+
+	if (node.type !== 'struct' && (node as any).bounding_box) {
+		json.bounding_box = {
+			min: (node as any).bounding_box.min.toArray(),
+			max: (node as any).bounding_box.max.toArray(),
+		}
+	}
+
+	if ((node as any).configs) {
+		json.configs = { ...(node as any).configs?.variants }
+		const defaultVariant = Variant.getDefault()
+		if ((node as any).configs?.default && defaultVariant) {
+			json.configs[defaultVariant.uuid] = (node as any).configs.default
+		}
+	}
+
 	switch (node.type) {
 		case 'bone': {
-			delete json.boundingBox
-			json.bounding_box = {
-				min: node.bounding_box.min.toArray(),
-				max: node.bounding_box.max.toArray(),
-			}
-			delete json.configs
-			json.configs = { ...node.configs?.variants }
-			const defaultVariant = Variant.getDefault()
-			if (node.configs?.default && defaultVariant) {
-				json.configs[defaultVariant.uuid] = node.configs.default
-			}
 			break
 		}
 		case 'text_display': {
-			json.text = new JsonText(node.text).toJSON()
+			json.text = new TextComponent(node.text).toJSON()
 			break
 		}
 	}

@@ -1,7 +1,11 @@
-import * as crypto from 'crypto'
-import { BONE_INTERPOLATION_ENABLED } from 'src/mods/boneAnimatorMod'
-import { MAX_PROGRESS, PROGRESS, PROGRESS_DESCRIPTION } from '../interface/dialog/exportProgress'
-import { SPD_isRegular, SPD_OFFSETS } from '../outliner/stablePlayerDisplay'
+import * as crypto from 'node:crypto'
+import {
+	MAX_PROGRESS,
+	PROGRESS,
+	PROGRESS_DESCRIPTION,
+} from '../dialogs/exportProgress/exportProgress'
+import { BONE_INTERPOLATION_ENABLED } from '../mods/boneAnimatorMod'
+import { SPD_hasParent, SPD_isRegular, SPD_OFFSETS } from '../outliner/stablePlayerDisplay'
 import { TextDisplay } from '../outliner/textDisplay'
 import { VanillaBlockDisplay } from '../outliner/vanillaBlockDisplay'
 import { VanillaItemDisplay } from '../outliner/vanillaItemDisplay'
@@ -191,25 +195,17 @@ export function getFrame(
 					updatePreview(animation, time)
 				}
 
-				if (Object.keys(SPD_OFFSETS).includes(node.name)) {
-					matrix.elements[13] += SPD_OFFSETS[node.name as keyof typeof SPD_OFFSETS]
+				if (
+					Object.keys(SPD_OFFSETS).includes(node.name) &&
+					SPD_hasParent(node, nodeMap)
+				) {
+					transform.matrix.elements[13] +=
+						SPD_OFFSETS[node.name as keyof typeof SPD_OFFSETS]
 
 					if (node.name === 'torso') {
-						const spdInfo = SPD_isRegular(node, nodeMap)
-						const yOffset = spdInfo ? 0.75 : 0.375
+						const yOffset = SPD_isRegular(node, nodeMap) ? 0.75 : 0.375
 						const offsetMatrix = new THREE.Matrix4().makeTranslation(0, yOffset, 0)
-						matrix.multiply(offsetMatrix)
-					}
-				}
-
-				if (Object.keys(SPD_OFFSETS).includes(node.name)) {
-					matrix.elements[13] += SPD_OFFSETS[node.name as keyof typeof SPD_OFFSETS]
-
-					if (node.name === 'torso') {
-						const spdInfo = SPD_isRegular(node, nodeMap)
-						const yOffset = spdInfo ? 0.75 : 0.375
-						const offsetMatrix = new THREE.Matrix4().makeTranslation(0, yOffset, 0)
-						matrix.multiply(offsetMatrix)
+						transform.matrix.multiply(offsetMatrix)
 					}
 				}
 
@@ -235,6 +231,7 @@ export function getFrame(
 				// lastFrameCache.set(uuid, { matrix, keyframe })
 				break
 			}
+			case 'interaction':
 			case 'camera':
 			case 'struct': {
 				transform.matrix = getNodeMatrix(outlinerNode, 1)
@@ -251,7 +248,7 @@ export function getFrame(
 		transform.matrix.decompose(pos, rot, scale)
 		transform.decomposed = getDecomposedTransformation(transform.matrix)
 
-		if (node.type === 'locator' || node.type === 'camera') {
+		if (node.type === 'locator' || node.type === 'camera' || node.type === 'interaction') {
 			node.max_distance = Math.max(node.max_distance, pos.length())
 		}
 
@@ -307,24 +304,14 @@ function getFunctionKeyframe(
 export function updatePreview(animation: _Animation, time: number) {
 	Timeline.time = time
 	Animator.showDefaultPose(true)
-	const nodes: OutlinerNode[] = [
-		...Group.all,
-		...NullObject.all,
-		...Locator.all,
-		...TextDisplay.all,
-		...VanillaBlockDisplay.all,
-		...VanillaItemDisplay.all,
-	]
-	if (OutlinerElement.types.camera) {
-		nodes.push(...OutlinerElement.types.camera.all)
-	}
+	const nodes: OutlinerNode[] = getAnimatableNodes()
 	for (const node of nodes) {
 		if (!(node.constructor as any).animator) continue
 		Animator.resetLastValues()
-		animation.getBoneAnimator(node).displayFrame()
+		animation.getBoneAnimator(node)!.displayFrame()
 	}
 	Animator.resetLastValues()
-	scene.updateMatrixWorld()
+	Canvas.scene.updateMatrixWorld()
 	if (animation.effects) animation.effects.displayFrame()
 	// Blockbench.dispatchEvent('display_animation_frame')
 }
@@ -395,9 +382,11 @@ export function getAnimatableNodes(): OutlinerElement[] {
 	return [
 		...Group.all,
 		...Locator.all,
+		...BoundingBox.all,
 		...TextDisplay.all,
 		...VanillaBlockDisplay.all,
 		...VanillaItemDisplay.all,
+		// @ts-expect-error - Broken BB types
 		...(OutlinerElement.types.camera ? OutlinerElement.types.camera.all : []),
 	]
 }

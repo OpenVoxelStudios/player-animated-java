@@ -1,9 +1,24 @@
-import { isCurrentFormat } from '../blueprintFormat'
-import { PACKAGE } from '../constants'
-import { openStablePlayerDisplayDialog } from '../interface/dialog/stablePlayerDisplayDialog'
-import { AnyRenderedNode, IRenderedRig } from '../systems/rigRenderer'
-import { createAction, createBlockbenchMod } from '../util/moddingTools'
-import { translate } from '../util/translation'
+import { registerDeletableHandlerPatch } from 'blockbench-patch-manager'
+import { openStablePlayerDisplayDialog } from '../dialogs/stablePlayerDisplay/stablePlayerDisplay'
+import { activeProjectIsBlueprintFormat } from '../formats/blueprint'
+import type { AnyRenderedNode, IRenderedRig } from '../systems/rigRenderer'
+import { localize as translate } from '../util/lang'
+
+export function SPD_hasParent(node: AnyRenderedNode, nodeMap: IRenderedRig['nodes']): boolean {
+	let currentUuid = node.parent
+	while (currentUuid && currentUuid !== 'root') {
+		const current = nodeMap[currentUuid]
+		if (!current) break
+		if (
+			current.name === 'stable_player_display' ||
+			current.name === 'split_stable_player_display'
+		) {
+			return true
+		}
+		currentUuid = current.parent
+	}
+	return false
+}
 
 export function SPD_isRegular(cube: AnyRenderedNode, nodeMap: IRenderedRig['nodes']): boolean {
 	let currentUuid = cube.parent
@@ -215,40 +230,29 @@ async function createStablePlayerDisplay(modelType: string) {
 	return playerGroup
 }
 
-export const CREATE_ACTION = createAction(`${PACKAGE.name}:create_stable_player_display`, {
-	name: translate('action.create_stable_player_display.title'),
-	icon: 'accessibility_new',
-	category: 'animated_java',
-	condition() {
-		return isCurrentFormat() && Mode.selected?.id === Modes.options.edit.id
-	},
-	async click() {
-		const result = await openStablePlayerDisplayDialog()
-		if (!result) return
+export const CREATE_ACTION = registerDeletableHandlerPatch({
+	id: `animated_java:action/create-stable-player-display`,
+	create() {
+		const action = new Blockbench.Action(`animated_java:action/create-stable-player-display`, {
+			name: translate('action.create_stable_player_display.title'),
+			icon: 'accessibility_new',
+			category: 'animated_java',
+			condition() {
+				return (
+					activeProjectIsBlueprintFormat() && Mode.selected.id === Modes.options.edit.id
+				)
+			},
+			async click() {
+				const result = await openStablePlayerDisplayDialog()
+				if (!result) return
+				await createStablePlayerDisplay(result.modelType)
+			},
+		})
 
-		await createStablePlayerDisplay(result.modelType)
+		BarItems.add_element.side_menu.addAction(action, 3)
+
+		return action
 	},
 })
-
-createBlockbenchMod(
-	`${PACKAGE.name}:stablePlayerDisplay`,
-	{
-		subscriptions: [] as Array<() => void>,
-	},
-	context => {
-		Interface.Panels.outliner.menu.addAction(CREATE_ACTION, 4)
-		Toolbars.outliner.add(CREATE_ACTION, 0)
-		MenuBar.menus.edit.addAction(CREATE_ACTION, 8)
-
-		return context
-	},
-	context => {
-		Interface.Panels.outliner.menu.removeAction(CREATE_ACTION.id)
-		Toolbars.outliner.remove(CREATE_ACTION)
-		MenuBar.menus.edit.removeAction(CREATE_ACTION.id)
-
-		context.subscriptions.forEach(unsub => unsub())
-	}
-)
 
 export { createStablePlayerDisplay }

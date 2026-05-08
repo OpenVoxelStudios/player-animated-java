@@ -7,7 +7,7 @@ import {
 	type AsyncZippable,
 	type Unzipped,
 } from 'fflate/browser'
-import { projectTargetVersionIsAtLeast } from 'src/formats/blueprint'
+import { projectTargetVersionIsAtLeast } from '../formats/blueprint'
 import { roundTo } from '../util/misc'
 import type { INodeTransform } from './animationRenderer'
 
@@ -93,6 +93,11 @@ export const unzip = (data: Uint8Array, options: AsyncUnzipOptions) => {
 }
 
 export function isCubeValid(cube: Cube): '1.21.6+' | 'valid' | 'invalid' {
+	if (projectTargetVersionIsAtLeast('1.21.11')) {
+		// Rotations are unrestricted on 1.21.11+
+		return 'valid'
+	}
+
 	const totalRotation = cube.rotation[0] + cube.rotation[1] + cube.rotation[2]
 
 	if (totalRotation === 0) return 'valid'
