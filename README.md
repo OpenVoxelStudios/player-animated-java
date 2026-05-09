@@ -68,16 +68,16 @@ You won't see anything at first and that's normal! You have to apply the skin yo
 
 ```
 # Apply defined skin to the nearest rig
-/execute as @n[tag=aj.<namespace>.root] run function animated_java:<namespace>/set_skin {name:"<player name>"}
+/execute as @n[tag=aj.<namespace>.root] run function aj:<namespace>/set_skin {name:"<player name>"}
 
 # You can also apply a slim variant
-/execute as @n[tag=aj.<namespace>.root] run function animated_java:<namespace>/set_skin_slim {name:"<player name>"}
+/execute as @n[tag=aj.<namespace>.root] run function aj:<namespace>/set_skin_slim {name:"<player name>"}
 
 # Apply skin of the current player (this has to be executed AT the rig not AS!)
-/execute at @e[tag=aj.<namespace>.root] run function animated_java:<namespace>/apply_skin
+/execute at @e[tag=aj.<namespace>.root] run function aj:<namespace>/apply_skin
 
 # Or same with the slim variant
-/execute at @e[tag=aj.<namespace>.root] run function animated_java:<namespace>/apply_skin_slim
+/execute at @e[tag=aj.<namespace>.root] run function aj:<namespace>/apply_skin_slim
 ```
 
 Depending on what model type you use (regular/split) you have to apply the right StablePlayerDisplay resource pack. You can find the `SPD.zip` and `SPD_split.zip` resource packs in the [Releases tab](https://github.com/OpenVoxelStudios/player-animated-java/releases/latest). Only apply one of them at a time, so I guess you can't really have two different types in the same world...

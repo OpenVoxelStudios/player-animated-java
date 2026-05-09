@@ -4,7 +4,7 @@
 	"title": "Player Animated Java",
 	"icon": "icon.svg",
 	"description": "[FORK] Effortlessly craft complex animations for Minecraft: Java Edition",
-	"version": "1.10.0-beta.6-player",
+	"version": "1.10.0-beta.6",
 	"min_blockbench_version": "5.1.4",
 	"variant": "desktop",
 	"tags": [
