@@ -156,10 +156,6 @@ async function generateRootEntityPassengers(version: string, rig: IRenderedRig) 
 					)
 
 					passenger.set('item_display', new NbtString('thirdperson_righthand'))
-					passenger.set(
-						'item',
-						new NbtCompound().set('id', new NbtString('minecraft:air'))
-					)
 					// passenger.set('view_range', new NbtFloat(0.6))
 				}
 
@@ -596,9 +592,7 @@ const dataPackCompiler: DataPackCompiler = async ({
 	const spd_parts = Object.values(rig.nodes)
 		.filter(
 			(n): n is Extract<AnyRenderedNode, { type: 'bone' }> =>
-				n.type === 'bone' &&
-				SPD_PART_NAMES.includes(n.name) &&
-				SPD_hasParent(n, rig.nodes)
+				n.type === 'bone' && SPD_PART_NAMES.includes(n.name) && SPD_hasParent(n, rig.nodes)
 		)
 		.map(n => ({
 			name: n.name,

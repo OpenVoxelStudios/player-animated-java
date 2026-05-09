@@ -1480,14 +1480,18 @@ IF (spd_parts.length > 0) {
 	function set_skin {
 		#ARGS: {name: string}
 		REPEAT (["head", "left_arm", "left_forearm", "right_arm", "right_forearm", "torso", "waist", "left_leg", "lower_left_leg", "right_leg", "lower_right_leg"]) as part {
-			$execute on passengers run item replace entity @s[tag=<%TAGS.PROJECT_BONE_NAMED(blueprint_id, part)%>] container.0 with player_head[profile={name:$(name)},minecraft:item_model="animated_java:blueprint/player_display/<%part%>",minecraft:custom_model_data={strings:["default"]}]
+			$function ./as_node {name: "<%part%>", command: \
+				'item replace entity @s container.0 with player_head[profile={name:"$(name)"},minecraft:item_model="animated_java:blueprint/player_display/<%part%>",minecraft:custom_model_data={strings:["default"]}]' \
+			}
 		}
 	}
 
 	function set_skin_slim {
 		#ARGS: {name: string}
 		REPEAT (["head", "left_arm", "left_forearm", "right_arm", "right_forearm", "torso", "waist", "left_leg", "lower_left_leg", "right_leg", "lower_right_leg"]) as part {
-			$execute on passengers run item replace entity @s[tag=<%TAGS.PROJECT_BONE_NAMED(blueprint_id, part)%>] container.0 with player_head[profile={name:$(name)},minecraft:item_model="animated_java:blueprint/player_display/<%part%>",minecraft:custom_model_data={strings:["slim"]}]
+			$function ./as_node {name: "<%part%>", command: \
+				'item replace entity @s container.0 with player_head[profile={name:"$(name)"},minecraft:item_model="animated_java:blueprint/player_display/<%part%>",minecraft:custom_model_data={strings:["slim"]}]' \
+			}
 		}
 	}
 
