@@ -40,10 +40,10 @@
 
 Hi! Kubik here. Before continuing I want to make some stuff clear :
 
--   I do not participate in AJs or SPDs development
--   I "merged" the projects together for a simpler and accessible use
--   I kept every link towards Animated Java, including in this README. Show them support! (totally to avoid merge conflicts too lol)
--   Changes are written down in the [CHANGES.md](./CHANGES.md) file
+- I do not participate in AJs or SPDs development
+- I "merged" the projects together for a simpler and accessible use
+- I kept every link towards Animated Java, including in this README. Show them support! (totally to avoid merge conflicts too lol)
+- Changes are written down in the [CHANGES.md](./CHANGES.md) file
 
 So credits to the original Animated Java project: https://animated-java.dev
 As well as Stable Player Display (SPD): https://github.com/bradleyq/stable_player_display
@@ -102,34 +102,34 @@ Animated Java is a cutting-edge Blockbench plugin designed for Minecraft: Java E
 
 # ✨ Key Features
 
--   **Function API** - Simple, yet powerful, API for summoning, and controlling animated models.
+- **Function API** - Simple, yet powerful, API for summoning, and controlling animated models.
 
--   **Variants** - Swap between different textures in-game.
+- **Variants** - Swap between different textures in-game.
 
--   **Text Displays** - Preview, edit, and animate text displays in Blockbench.
+- **Text Displays** - Preview, edit, and animate text displays in Blockbench.
 
--   **Keyframe Easing Curves** - Create smooth animations with ease.
+- **Keyframe Easing Curves** - Create smooth animations with ease.
 
--   **Locators** - Execute commands using Function Keyframes, teleport entities in an animation, and more.
+- **Locators** - Execute commands using Function Keyframes, teleport entities in an animation, and more.
 
--   **Animation Tweening** - Smoothly transition be<ins>tween</ins> animations.
+- **Animation Tweening** - Smoothly transition be<ins>tween</ins> animations.
 
--   **Camera Support** - Install the [Official Camera Plugin](https://www.blockbench.net/plugins/cameras) to create cinematic camera paths with ease.
+- **Camera Support** - Install the [Official Camera Plugin](https://www.blockbench.net/plugins/cameras) to create cinematic camera paths with ease.
 
--   **Well Optimized** - Hours of effort have been poured into making Animated Java's Data Pack as low-impact as possible.
+- **Well Optimized** - Hours of effort have been poured into making Animated Java's Data Pack as low-impact as possible.
 
--   **Resource Packs are Optional** - Animate Vanilla block and item models using Item and Block Display entities.
+- **Resource Packs are Optional** - Animate Vanilla block and item models using Item and Block Display entities.
 
--   **Molang Support** - If Blockbench can render your Molang expressions in the preview, you can use it in Animated Java.
+- **Molang Support** - If Blockbench can render your Molang expressions in the preview, you can use it in Animated Java.
 
 <br/>
 
 # 📦 Installation
 
--   ❔ [Getting Started](https://animated-java.dev/docs/getting-started/using-animated-java)
--   📚 [Documentation](https://animated-java.dev/docs)
--   🌐 [Website](https://animated-java.dev)
--   🗣️ [Discord](https://animated-java.dev/discord)
+- ❔ [Getting Started](https://animated-java.dev/docs/getting-started/using-animated-java)
+- 📚 [Documentation](https://animated-java.dev/docs)
+- 🌐 [Website](https://animated-java.dev)
+- 🗣️ [Discord](https://animated-java.dev/discord)
 
 <br/>
 
@@ -157,10 +157,10 @@ Contributions are always welcome! Check out [CONTRIBUTING.md](CONTRIBUTING.md) f
 
 # ⭐ Star History
 
-<a href="https://star-history.com/#animated-java/animated-java&Date" alt="test">
-	<picture>
-		<source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=animated-java/animated-java&type=Date&theme=dark" />
-		<source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=animated-java/animated-java&type=Date" />
-		<img alt="Star History Chart" src="https://api.star-history.com/svg?repos=animated-java/animated-java&type=Date" />
-	</picture>
+<a href="https://www.star-history.com/?repos=animated-java%2Fanimated-java%2COpenVoxelStudios%2Fplayer-animated-java&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=animated-java/animated-java%2COpenVoxelStudios/player-animated-java&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=animated-java/animated-java%2COpenVoxelStudios/player-animated-java&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=animated-java/animated-java%2COpenVoxelStudios/player-animated-java&type=date&legend=top-left" />
+ </picture>
 </a>

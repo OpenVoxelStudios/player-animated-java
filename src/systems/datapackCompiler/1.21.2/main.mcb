@@ -1395,7 +1395,7 @@ IF (spd_parts.length > 0) {
 		#ARGS: {name: string}
 		REPEAT (["head", "left_arm", "left_forearm", "right_arm", "right_forearm", "torso", "waist", "left_leg", "lower_left_leg", "right_leg", "lower_right_leg"]) as part {
 			$function ./as_node {name: "<%part%>", command: \
-				'item replace entity @s container.0 with player_head[profile={name:"$(name)"},minecraft:item_model="animated_java:blueprint/player_display/<%part%>",minecraft:custom_model_data={strings:["default"]}]' \
+				'item replace entity @s container.0 with player_head[profile={name:"$(name)"},minecraft:item_model="aj:blueprint/player_display/<%part%>",minecraft:custom_model_data={strings:["default"]}]' \
 			}
 		}
 	}
@@ -1404,20 +1404,20 @@ IF (spd_parts.length > 0) {
 		#ARGS: {name: string}
 		REPEAT (["head", "left_arm", "left_forearm", "right_arm", "right_forearm", "torso", "waist", "left_leg", "lower_left_leg", "right_leg", "lower_right_leg"]) as part {
 			$function ./as_node {name: "<%part%>", command: \
-				'item replace entity @s container.0 with player_head[profile={name:"$(name)"},minecraft:item_model="animated_java:blueprint/player_display/<%part%>",minecraft:custom_model_data={strings:["slim"]}]' \
+				'item replace entity @s container.0 with player_head[profile={name:"$(name)"},minecraft:item_model="aj:blueprint/player_display/<%part%>",minecraft:custom_model_data={strings:["slim"]}]' \
 			}
 		}
 	}
 
 	function apply_skin {
 		REPEAT (["head", "left_arm", "left_forearm", "right_arm", "right_forearm", "torso", "waist", "left_leg", "lower_left_leg", "right_leg", "lower_right_leg"]) as part {
-			loot replace entity @n[tag=<%TAGS.PROJECT_BONE_NAMED(blueprint_id, part)%>] hotbar.0 loot {"pools": [{"rolls": 1,"entries": [{"type": "minecraft:item","name": "minecraft:player_head","functions": [{"function": "minecraft:set_components","components": {"minecraft:item_model": "animated_java:blueprint/player_display/<%part%>","minecraft:custom_model_data": {"strings": ["default"]}}},{"function": "minecraft:fill_player_head","entity": "this"}]}]}]}
+			loot replace entity @n[tag=<%TAGS.PROJECT_BONE_NAMED(blueprint_id, part)%>] hotbar.0 loot {"pools": [{"rolls": 1,"entries": [{"type": "minecraft:item","name": "minecraft:player_head","functions": [{"function": "minecraft:set_components","components": {"minecraft:item_model": "aj:blueprint/player_display/<%part%>","minecraft:custom_model_data": {"strings": ["default"]}}},{"function": "minecraft:fill_player_head","entity": "this"}]}]}]}
 		}
 	}
 
 	function apply_skin_slim {
 		REPEAT (["head", "left_arm", "left_forearm", "right_arm", "right_forearm", "torso", "waist", "left_leg", "lower_left_leg", "right_leg", "lower_right_leg"]) as part {
-			loot replace entity @n[tag=<%TAGS.PROJECT_BONE_NAMED(blueprint_id, part)%>] hotbar.0 loot {"pools": [{"rolls": 1,"entries": [{"type": "minecraft:item","name": "minecraft:player_head","functions": [{"function": "minecraft:set_components","components": {"minecraft:item_model": "animated_java:blueprint/player_display/<%part%>","minecraft:custom_model_data": {"strings": ["slim"]}}},{"function": "minecraft:fill_player_head","entity": "this"}]}]}]}
+			loot replace entity @n[tag=<%TAGS.PROJECT_BONE_NAMED(blueprint_id, part)%>] hotbar.0 loot {"pools": [{"rolls": 1,"entries": [{"type": "minecraft:item","name": "minecraft:player_head","functions": [{"function": "minecraft:set_components","components": {"minecraft:item_model": "aj:blueprint/player_display/<%part%>","minecraft:custom_model_data": {"strings": ["slim"]}}},{"function": "minecraft:fill_player_head","entity": "this"}]}]}]}
 		}
 	}
 }
