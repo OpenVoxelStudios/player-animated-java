@@ -206,6 +206,10 @@ IF (has_animations) {
 		REPEAT (animations) as animation {
 			dir <%animation.storage_name%> {
 				function play {
+					# TEMPORARY: fix on AJ confusing ids
+					execute store result storage animated_java:temp args.id int 1 run scoreboard players get @s aj.id
+					function animated_java:global/data_manager/read with storage animated_java:temp args
+
 					debug assert executed_as_root_entity <%TAGS.PROJECT_ROOT(blueprint_id)%>
 
 					function <%blueprint_id%>/animations/pause_all
@@ -218,6 +222,10 @@ IF (has_animations) {
 				}
 
 				function stop {
+					# TEMPORARY: fix on AJ confusing ids
+					execute store result storage animated_java:temp args.id int 1 run scoreboard players get @s aj.id
+					function animated_java:global/data_manager/read with storage animated_java:temp args
+
 					debug assert executed_as_root_entity <%TAGS.PROJECT_ROOT(blueprint_id)%>
 
 					function <%blueprint_id%>/animations/pause_all
