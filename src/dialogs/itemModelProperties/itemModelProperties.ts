@@ -6,6 +6,7 @@ import {
 	projectTargetVersionIsAtLeast,
 } from '../../formats/blueprint'
 import { localize } from '../../util/lang'
+import '../displayEntityConfig/displayEntityConfig'
 import ItemModelProperties from './itemModelProperties.svelte'
 
 export function openItemPropertiesDialog(group: Group) {

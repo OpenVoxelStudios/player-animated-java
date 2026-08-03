@@ -262,6 +262,8 @@ async function createStablePlayerDisplay(modelType: string) {
 
 	parts.forEach(part => createCube(part, playerGroup))
 
+	Canvas.updateAll()
+
 	playerGroup.select()
 
 	Undo.finishEdit('Create Stable Player Display', {

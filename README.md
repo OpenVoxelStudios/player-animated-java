@@ -46,11 +46,14 @@ Hi! Kubik here. Before continuing I want to make some stuff clear :
 -   Changes are written down in the [CHANGES.md](./CHANGES.md) file
 
 So credits to the original Animated Java project: https://animated-java.dev
+
 As well as Stable Player Display (SPD): https://github.com/bradleyq/stable_player_display
+
+And vlad for his updated fork for Minecraft 26+: https://github.com/vladislavvc/stable_player_display
 
 ## So now that this is clear, why?
 
-This "Player Animated Java" allows you to easily animate custom players, while keeping the power of Animated Java. **This only works for 1.21.5+** (tested in 1.21.8).
+This "Player Animated Java" allows you to easily animate custom players, while keeping the power of Animated Java. It works on 26+ versions.
 
 ## How to use PlayerAJ?
 
@@ -58,7 +61,7 @@ Create an AJ project like usual, and click on the new button:
 
 ![](.github/assets/SPD_add_button.png)
 
-You'll be asked to choose between **regular** and **split**. Regular has 6 animatable cubes: head, torso, 2 arms and 2 legs. Split has **two parts** for the torso, arms and legs meaning that you'll have 11 animatable cubes.
+You'll be asked to choose between **regular** and **split**. Regular has 6 animatable cubes: head, torso, 2 arms and 2 legs. Split has **two parts** for the torso, arms and legs meaning that you'll have 11 animatable cubes. But I believe split does not work.
 
 ![](.github/assets/SPD_dialog.png)
 

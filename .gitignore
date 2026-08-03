@@ -108,3 +108,4 @@ dist
 out/linecounter.txt
 out/linecounter.json
 testPluginExport.json
+.DS_Store
