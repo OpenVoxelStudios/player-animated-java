@@ -12,6 +12,8 @@ animated_java:
   outliner:
     structure_group:
       title: Structure Group (Will not create an entity)
+    interaction:
+      title: Interaction
 
   action:
     open_blueprint_settings:
@@ -28,6 +30,8 @@ animated_java:
       name: Locator Config
     open_interaction_config:
       name: Interaction Config
+    open_item_model_properties:
+      name: Item Model Properties
     export:
       name: Export
     export_debug:
@@ -51,6 +55,8 @@ animated_java:
       title: Add Block Display
     create_stable_player_display:
       title: Add Stable Player Display
+    create_interaction:
+      title: Add Interaction
     copy_display_entity_config:
       name: Copy Display Entity Config
       message: Copied Display Entity Config from "%s"
@@ -111,6 +117,16 @@ animated_java:
           split: Split
       create_button: Create
       cancel_button: Cancel
+    item_properties:
+      title: Item Model Properties
+      tint_constants: Tint Constants
+      description: |-
+        [Markdown]
+        Constant tints apply fixed color values to an item's tint layers, so the model always uses the same tint colors in-game.
+      add_tint: Add Tint
+      empty_state: No tint constants configured. Add a tint to start.
+      tint_label: Tint Index %s
+      remove_tint: Remove
     unexpected_error:
       title: An Unexpected Error Occurred!
       close_button: Close
@@ -119,8 +135,26 @@ animated_java:
         description: Click to copy the error message to the clipboard.
       paragraph: 'Please report this error by joining our %s and creating a thread in the #animated-java-support channel, or by creating an issue on our {1}. Thank you!'
 
+    entity_count_dialog:
+      title: Entity Count
+      description: |-
+        [Markdown]
+        This dialog shows what nodes in your Blueprint will create entities in-game, and how many entities will be created in total.
+
+        Large numbers of entities will cause performance issues in-game. It's recommended to keep the total number of entities as low as possible.
+
+        For more information on Rig Entities, see [Animated Java Docs / Core Concepts / Rigs](https://animated-java.dev/docs/core-concepts/rigs)
+      root_entities: Root Entity
+      group_entities: Group Entities
+      display_entities: Display Entities
+      locator_entities: Locator Entities
+      camera_entities: Camera Entities
+      interaction_entities: Interaction Entities
+      total_entities: Total Entities
+
     blueprint_settings:
       title: Blueprint Settings
+      required_footer: Required
 
       pages:
         general.title: General
@@ -260,12 +294,13 @@ animated_java:
           The targeted Resource Pack must contain a `pack.mcmeta` file.
         warning:
           no_assets: Selected folder does not contain an assets folder.
-        error:
-          empty: Resource Pack folder is required.
-          invalid_path: 'Failed to resolve path: %s'
-          does_not_exist: Selected path does not exist.
-          not_a_dir: Selected path is not a directory.
-          no_pack_mcmeta: Selected folder does not contain a pack.mcmeta file.
+        folder:
+          error:
+            empty: Resource Pack folder is required.
+            invalid_path: 'Failed to resolve path: %s'
+            does_not_exist: Selected path does not exist.
+            not_a_dir: Selected path is not a directory.
+            no_pack_mcmeta: Selected folder does not contain a pack.mcmeta file.
       data_pack_settings:
         title: Data Pack
       data_pack:
@@ -409,10 +444,17 @@ animated_java:
 
     display_entity:
       title: Display Entity Config for "%s"
-      node_options:
-        title: Node
-      per_variant_options:
-        title: Per-Variant
+      pages:
+        general.title: General
+        per_variant.title: Per-Variant
+
+      variant:
+        title: Target Variant
+        description: |-
+          [Markdown]
+          The variant to configure the display entity for.
+
+          This allows you to have different display entity settings for each variant.
       on_summon_function:
         title: On-Summon Function
         description: |-
@@ -462,6 +504,12 @@ animated_java:
       brightness_override:
         title: Brightness
         description: The brightness of the node. This should be a value between 0 and 15.
+      sky_brightness:
+        title: Sky Brightness
+        description: The sky light brightness of the node. This should be a value between 0 and 15.
+      block_brightness:
+        title: Block Brightness
+        description: The block light brightness of the node. This should be a value between 0 and 15.
       use_custom_brightness:
         title: Use Custom Brightness
         description: Whether or not to enable the custom brightness override for the node.
@@ -479,15 +527,19 @@ animated_java:
         description: |-
           [Markdown]
           Controls if this nodes model should pivot to face player when rendered.
-          - **Fixed**: Both vertical and horizontal angles are fixed.
-          - **Vertical**: Pivots around vertical axis.
-          - **Horizontal**: Pivots around horizontal axis.
-          - **Center**: Pivots around center point.
         options:
-          fixed: Fixed
-          vertical: Vertical
-          horizontal: Horizontal
-          center: Center
+          fixed:
+            label: Fixed
+            description: Do not pivot to face the player.
+          vertical:
+            label: Vertical
+            description: Pivot around the vertical axis to face the player.
+          horizontal:
+            label: Horizontal
+            description: Pivot around the horizontal axis to face the player.
+          center:
+            label: Center
+            description: Pivot around both the vertical and horizontal axes to face the player.
     locator_config:
       title: Locator Config
       plugin_mode_warning: |-
@@ -562,8 +614,8 @@ animated_java:
 
           Supports [MC-Build](https://mcbuild.dev) syntax.
 
-      on_interaction_function:
-        title: On-Interaction Function
+      on_interact_function:
+        title: On-Interact Function
         description: |-
           [Markdown]
           Commands to run `as` and `at` this Interaction when a player interacts with it.
@@ -628,6 +680,12 @@ animated_java:
       brightness_override:
         title: Brightness
         description: The brightness of the text display. This should be a value between 0 and 15.
+      sky_brightness:
+        title: Sky Brightness
+        description: The sky light brightness of the text display. This should be a value between 0 and 15.
+      block_brightness:
+        title: Block Brightness
+        description: The block light brightness of the text display. This should be a value between 0 and 15.
       use_custom_brightness:
         title: Use Custom Brightness
         description: Whether or not to enable the custom brightness override for the bone.
@@ -700,8 +758,19 @@ animated_java:
         description: A list of nodes to include in the Variant. Only these nodes will be changed when applying the Variant.
       swap_columns_button:
         tooltip: Swap Lists
+      on_apply_function:
+        title: On-Apply Function
+        description: |-
+          [Markdown]
+          Commands to run `as` and `at` the root entity when the Variant is applied.
+
+          Treat this text input as if it were a `.mcfunction` file.
+
+          Supports [MC-Build](https://mcbuild.dev) syntax.
+
     upgrade_old_aj_model_loader:
       title: Update .ajmodel
+
     animation_properties:
       title: Animation Properties (%s)
       animation_name:
@@ -792,8 +861,11 @@ animated_java:
           Number of ticks between command repeats.
 
           Set to 1 to run every tick of the animation.
+
+    easings:
+      title: Keyframe Easing
       easing_type:
-        title: Easing Type
+        title: Curve
         description: The type of easing to apply to the keyframe.
         options:
           linear: Linear
@@ -808,14 +880,13 @@ animated_java:
           back: Back
           bounce: Bounce
       easing_mode:
-        title: Easing Mode
+        title: Mode
         description: The easing mode to apply to the keyframe.
         options:
           in: In
           out: Out
           inout: In-Out
       easing_args:
-        title: Easing Args
         description: The arguments to apply to the easing function.
         easing_arg:
           elastic:
@@ -829,8 +900,16 @@ animated_java:
             description: The bounciness of the easing function.
       nonlinear_interpolation: |-
         [Markdown]
-        Advanced easing options are disabled.
-        Change the keyframe's interpolation mode to `linear` to enable them.
+        Only keyframes with `linear` interpolation can use advanced easing options.
+      no_keyframe_selected: |-
+        [Markdown]
+        No keyframe selected.
+
+        Please select a keyframe to edit its easing options.
+      first_keyframe_easing: |-
+        [Markdown]
+        The first keyframe in an animation cannot change its easing options, as it has no previous keyframe to interpolate from.
+
     text_display:
       title: Text Display
     vanilla_item_display:

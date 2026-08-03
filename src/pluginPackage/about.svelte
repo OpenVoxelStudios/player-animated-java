@@ -76,8 +76,7 @@
 
 <p>
 	To learn the basics of Animated Java, check out our <a
-		href="https://animated-java.dev/docs/getting-started/installing-animated-java"
-		>Getting Started</a
+		href="https://animated-java.dev/docs/getting-started/installing">Getting Started</a
 	> guide.
 </p>
 

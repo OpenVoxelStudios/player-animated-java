@@ -18,15 +18,19 @@ const ITEM_MODEL_CACHE = new Map<string, ItemMesh>()
 
 export async function getItemModel(
 	item: string,
-	itemDisplay: ItemDisplayMode
+	itemDisplay: ItemDisplayMode,
+	minecraftVersion = Project.animated_java.target_minecraft_version
 ): Promise<ItemMesh | undefined> {
-	const cacheKey = item + '|' + itemDisplay
+	const cacheKey = minecraftVersion + '|' + item + '|' + itemDisplay
 	let result = ITEM_MODEL_CACHE.get(cacheKey)
 	if (!result) {
 		result = await parseItemModel(getItemResourceLocation(item), itemDisplay)
 		ITEM_MODEL_CACHE.set(cacheKey, result)
 	}
-	if (!result) return undefined
+	if (!result) {
+		console.warn(`Failed to load item model for ${item} with display mode ${itemDisplay}`)
+		return undefined
+	}
 	result = {
 		mesh: result.mesh.clone(true),
 		outline: result.outline.clone(true),
@@ -92,17 +96,17 @@ export function applyModelDisplayTransform(
 		const rot = display.rotation.map((n: number) => (n * Math.PI) / 180)
 		matrix.makeRotationFromEuler(Reusable.euler1.set(-rot[0], -rot[1], rot[2]))
 	}
+	if (display.scale) {
+		matrix.scale(Reusable.vec2.set(...display.scale))
+	}
 	if (display.translation) {
 		matrix.setPosition(
 			Reusable.vec1.set(
 				display.translation[0],
 				display.translation[1],
-				display.translation[2]
+				-display.translation[2]
 			)
 		)
-	}
-	if (display.scale) {
-		matrix.scale(Reusable.vec2.set(...display.scale))
 	}
 
 	itemModel.boundingBox.applyMatrix4(matrix)

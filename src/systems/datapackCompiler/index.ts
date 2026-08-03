@@ -48,7 +48,7 @@ async function generateRootEntityPassengers(version: string, rig: IRenderedRig) 
 	const passengers: NbtList = new NbtList()
 
 	for (const [uuid, node] of Object.entries(rig.nodes)) {
-		if (node.type === 'struct') continue
+		if (node.type === 'struct' || node.type === 'null_object') continue
 
 		const passenger = new NbtCompound()
 
@@ -283,7 +283,7 @@ async function createAnimationStorage(rig: IRenderedRig, animations: IRenderedAn
 		PROGRESS_DESCRIPTION.set(`Creating Animation Storage for '${animation.storage_name}'`)
 		let frames = new NbtCompound()
 		const addFrameDataCommand = () => {
-			const str = `data modify storage animated_java:${
+			const str = `data modify storage ${
 				Project!.animated_java.blueprint_id
 			}/animations ${animation.storage_name} merge value ${frames.toString()}`
 			dataCommands.push(str)
@@ -633,6 +633,7 @@ const dataPackCompiler: DataPackCompiler = async ({
 		nodeSorter,
 		getRotationFromQuaternion: eulerFromQuaternion,
 		has_locators: Object.values(rig.nodes).filter(n => n.type === 'locator').length > 0,
+		has_interactions: Object.values(rig.nodes).filter(n => n.type === 'interaction').length > 0,
 		has_entity_locators:
 			Object.values(rig.nodes).filter(n => n.type === 'locator' && n.config?.use_entity)
 				.length > 0,

@@ -7,6 +7,7 @@ import type {
 	IBlueprintLocatorConfigJSON,
 	IBlueprintVariantJSON,
 } from '../formats/blueprint'
+import { Interaction } from '../outliner/interaction'
 import { type Alignment, TextDisplay } from '../outliner/textDisplay'
 import { VanillaBlockDisplay } from '../outliner/vanillaBlockDisplay'
 import { type ItemDisplayMode, VanillaItemDisplay } from '../outliner/vanillaItemDisplay'
@@ -24,6 +25,7 @@ import {
 	updatePreview,
 } from './animationRenderer'
 import { IntentionalExportError } from './errors'
+import type { TintSource } from './minecraft/itemDefinitions'
 
 export interface IRenderedFace {
 	uv: number[]
@@ -117,6 +119,9 @@ export interface IDisplayEntityConfigs {
 export interface IRenderedNodes {
 	Bone: IRenderedDisplayEntityNode & {
 		type: 'bone'
+		itemModelProperties?: {
+			tints: TintSource[]
+		}
 	}
 	TextDisplay: IRenderedDisplayEntityNode & {
 		type: 'text_display'
@@ -139,6 +144,9 @@ export interface IRenderedNodes {
 	}
 	Struct: IRenderedNode & {
 		type: 'struct'
+	}
+	NullObject: IRenderedNode & {
+		type: 'null_object'
 	}
 	Camera: IRenderedNode & {
 		type: 'camera'
@@ -228,8 +236,8 @@ function renderCube(cube: Cube, rig: IRenderedRig, model: IRenderedModel): boole
 
 	if (cube.shade === false) element.shade = false
 
-	// If target version is 1.21.9 or higher, we can use free rotation
-	if (!compareVersions('1.21.9', rig.target_minecraft_version)) {
+	// If target version is 1.21.11 or higher, we can use free rotation
+	if (!compareVersions('1.21.11', rig.target_minecraft_version)) {
 		element.rotation = {
 			x: cube.rotation[0],
 			y: cube.rotation[1],
@@ -370,6 +378,19 @@ function getNodeBoundingBox(node: Group | TextDisplay | VanillaItemDisplay | Van
 	return box
 }
 
+function renderNullObject(nullObject: NullObject, rig: IRenderedRig) {
+	const parent = nullObject.parent instanceof Group ? nullObject.parent.uuid : undefined
+	const renderedNullObject: IRenderedNodes['NullObject'] = {
+		type: 'null_object',
+		name: nullObject.name,
+		uuid: nullObject.uuid,
+		parent,
+		default_transform: {} as INodeTransform,
+		storage_name: sanitizeStorageKey(nullObject.name),
+	}
+	rig.nodes[nullObject.uuid] = renderedNullObject
+}
+
 function renderGroup(
 	group: Group,
 	rig: IRenderedRig,
@@ -396,6 +417,9 @@ function renderGroup(
 		base_scale: 1,
 		configs: structuredClone(group.configs),
 		on_summon_function: group.onSummonFunction?.trim(),
+		itemModelProperties: group.itemModelProperties
+			? structuredClone(group.itemModelProperties)
+			: undefined,
 		// This is a placeholder value that will be updated later once the animation renderer is run.
 		default_transform: {} as INodeTransform,
 	}
@@ -441,10 +465,18 @@ function renderGroup(
 				renderBlockDisplay(node, rig)
 				break
 			}
+			case node instanceof Interaction: {
+				renderInteraction(node, rig)
+				break
+			}
 			case node instanceof Cube: {
 				if (renderCube(node, rig, groupModel.model!)) {
 					rig.includes_custom_models = true
 				}
+				break
+			}
+			case node instanceof NullObject: {
+				renderNullObject(node, rig)
 				break
 			}
 			default:
@@ -643,25 +675,31 @@ function renderLocator(locator: Locator, rig: IRenderedRig) {
 	rig.nodes[locator.uuid] = renderedLocator
 }
 
-function renderInteraction(box: BoundingBox, rig: IRenderedRig) {
-	if (!box.export) return
-	const parentId = box.parent instanceof Group ? box.parent.uuid : undefined
+function renderInteraction(interaction: Interaction, rig: IRenderedRig) {
+	if (!interaction.export) return
+
+	if (VersionUtil.compare(Project.animated_java.target_minecraft_version, '<', '1.21.5')) {
+		throw new IntentionalExportError(
+			"Interactions are only supported when targeting Minecraft 1.21.5 and above. Please update your project's target Minecraft version to 1.21.5 or higher to use interactions."
+		)
+	}
+
+	const parentId = interaction.parent instanceof Group ? interaction.parent.uuid : undefined
 
 	const renderedInteraction: IRenderedNodes['Interaction'] = {
 		type: 'interaction',
-		name: box.name,
-		storage_name: sanitizeStorageKey(box.name),
-		uuid: box.uuid,
+		name: interaction.name,
+		storage_name: sanitizeStorageKey(interaction.name),
+		uuid: interaction.uuid,
 		parent: parentId,
-		// @ts-expect-error - Broken BB types
-		config: structuredClone(box.config),
+		config: structuredClone(interaction.config),
 		max_distance: 0,
 		default_transform: {} as INodeTransform,
-		width: box.to[0] - box.from[0],
-		height: box.to[1] - box.from[1],
+		width: interaction.scale[0] / 16,
+		height: interaction.scale[1] / 16,
 	}
 
-	rig.nodes[box.uuid] = renderedInteraction
+	rig.nodes[interaction.uuid] = renderedInteraction
 }
 
 function renderCamera(camera: ICamera, rig: IRenderedRig) {
@@ -808,7 +846,8 @@ function getDefaultTransforms(rig: IRenderedRig) {
 	const anim = new Blockbench.Animation()
 	correctSceneAngle()
 	updatePreview(anim, 0)
-	const transforms = getFrame(anim, rig.nodes).node_transforms
+	updatePreview(anim, 0) // IK doesn't work unless I call this twice for some reason...
+	const transforms = getFrame(anim, rig.nodes, 0).node_transforms
 	restoreSceneAngle()
 	return transforms
 }
@@ -861,8 +900,12 @@ export function renderRig(modelExportFolder: string, textureExportFolder: string
 				renderBlockDisplay(node, rig)
 				break
 			}
-			case node instanceof BoundingBox: {
+			case node instanceof Interaction: {
 				renderInteraction(node, rig)
+				break
+			}
+			case node instanceof NullObject: {
+				renderNullObject(node, rig)
 				break
 			}
 			case node instanceof Cube: {
