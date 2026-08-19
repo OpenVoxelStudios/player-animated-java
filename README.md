@@ -36,7 +36,7 @@
 <br/>
 <br/>
 
-# README: Side Note!
+# [FORK]: Side Note!
 
 Hi! Kubik here. Before continuing I want to make some stuff clear :
 
@@ -54,6 +54,16 @@ And vlad for his updated fork for Minecraft 26+: https://github.com/vladislavvc/
 ## So now that this is clear, why?
 
 This "Player Animated Java" allows you to easily animate custom players, while keeping the power of Animated Java. It works on 26+ versions.
+
+## How to install Player Animated Java?
+
+Open BlockBench, open the "File" > "Plugins" menu and then click "Load plugin from url" and paste this link in:
+
+```
+https://github.com/OpenVoxelStudios/player-animated-java/releases/latest/download/animated_java.js
+```
+
+Make sure to have regular AJ uninstalled.
 
 ## How to use PlayerAJ?
 
@@ -84,16 +94,6 @@ You won't see anything at first and that's normal! You have to apply the skin yo
 ```
 
 Depending on what model type you use (regular/split) you have to apply the right StablePlayerDisplay resource pack. You can find the `SPD.zip` and `SPD_split.zip` resource packs in the [Releases tab](https://github.com/OpenVoxelStudios/player-animated-java/releases/latest). Only apply one of them at a time, so I guess you can't really have two different types in the same world...
-
-# How to install Player Animated Java?
-
-Open BlockBench, open the "File" > "Plugins" menu and then click "Load plugin from url" and paste this link in:
-
-```
-https://github.com/OpenVoxelStudios/player-animated-java/releases/latest/download/animated_java.js
-```
-
-Make sure to have regular AJ uninstalled.
 
 **The following text comes from the original Animated Java README.**
 
